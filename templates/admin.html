@@ -6,61 +6,180 @@
     <title>Panel Control - {{ config.nombre_negocio }}</title>
     <style>
         body { font-family: sans-serif; background: #222; color: white; padding: 20px; }
-        .cita-card { 
-            background: #333; padding: 15px; border-radius: 8px; 
-            margin-bottom: 15px; border-left: 5px solid {{ config.color_principal }}; 
+        
+        /* --- NUEVA ESTRUCTURA SUPERIOR (2 FILAS PARA MÓVIL) --- */
+        .top-controls { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-bottom: 20px; 
+            background: #333; 
+            padding: 15px; 
+            border-radius: 8px; 
         }
+        .filtro-barbero { 
+            width: 100%; 
+            padding: 12px; 
+            font-size: 16px; 
+            border-radius: 6px; 
+            border: 1px solid #555; 
+            background: #222; 
+            color: white; 
+            text-align: center; 
+            font-weight: bold; 
+        }
+        .botones-accion-container { 
+            display: flex; 
+            justify-content: space-between; 
+            gap: 10px; 
+            width: 100%; 
+        }
+        .btn-accion { 
+            flex: 1; /* Ambos botones ocupan el 50% exacto */
+            padding: 12px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 15px; 
+            text-align: center; 
+        }
+        .btn-bloquear { background: #cc0000; color: white; }
+        .btn-agendar { background: #28a745; color: white; }
+        
+        /* --- CALENDARIO PLACEHOLDER --- */
+        .calendario-grande { background: #333; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 2px dashed #555; height: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        
+        /* --- MODALES (VENTANAS EMERGENTES) --- */
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
+        .modal-content { background-color: #2a2a2a; margin: 10% auto; padding: 20px; border: 1px solid #555; width: 90%; max-width: 400px; border-radius: 8px; }
+        .cerrar { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; margin-top: -10px; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; color: #ccc; font-size: 14px; }
+        .form-group input, .form-group select { padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #111; color: white; }
+        
+        /* --- CITAS EXISTENTES --- */
+        .cita-card { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid {{ config.color_principal }}; }
         .hora { font-size: 1.5em; font-weight: bold; color: {{ config.color_principal }}; }
         .cliente { font-size: 1.2em; margin: 5px 0; }
         .servicios { color: #aaa; font-style: italic; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .badge { background: #555; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-       <h1>Agenda</h1>
-        <div class="badge">{{ fecha }}</div>
+    <div class="top-controls">
+        <select id="buscador-barbero" class="filtro-barbero" onchange="actualizarFiltros()">
+            <option value="Todos" {% if barbero_seleccionado == 'Todos' %}selected{% endif %}>✂️ Todos los Barberos</option>
+            {% for b in config.barberos %}
+            <option value="{{ b }}" {% if barbero_seleccionado == b %}selected{% endif %}>{{ b }}</option>
+            {% endfor %}
+        </select>
+        
+        <div class="botones-accion-container">
+            <button class="btn-accion btn-bloquear" onclick="abrirModal('modalBloquear')">🔒 Bloquear</button>
+            <button class="btn-accion btn-agendar" onclick="abrirModal('modalAgendar')">➕ Agendar</button>
+        </div>
     </div>
 
-   <div style="margin-bottom: 20px; background: #333; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-        <div>
-            <label for="buscador-fecha" style="font-weight: bold;">📅 Ver día: </label>
-            <input type="date" id="buscador-fecha" value="{{ fecha }}" onchange="actualizarFiltros()" style="padding: 5px; margin-left: 5px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white;">
+    <div class="calendario-grande">
+        <h3 style="margin: 0; color: #ccc;">📅 Calendario Mensual (En construcción)</h3>
+        <p style="margin: 5px 0 0 0; font-size: 14px; color: #888;">Aquí programaremos la cuadrícula visual y los colores de ocupación.</p>
+        <input type="date" id="buscador-fecha" value="{{ fecha }}" onchange="actualizarFiltros()" style="margin-top: 10px; padding: 5px; font-size: 16px; background: #111; color: white; border: none; border-radius: 4px;">
+    </div>
+
+    <div id="modalBloquear" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" onclick="cerrarModal('modalBloquear')">&times;</span>
+            <h3 style="margin-top: 0; color: #ff4444;">🔒 Bloquear Agenda</h3>
+            <form action="/admin_bloquear" method="POST">
+                <div class="form-group">
+                    <label>Barbero a bloquear:</label>
+                    <select name="barbero" required>
+                        {% for b in config.barberos %}
+                        <option value="{{ b }}">{{ b }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Motivo (Ej: Vacaciones):</label>
+                    <input type="text" name="concepto" required>
+                </div>
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    <input type="date" name="fecha" value="{{ fecha }}" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Hora Inicio:</label>
+                        <input type="time" name="hora_inicio" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Hora Fin:</label>
+                        <input type="time" name="hora_fin" required>
+                    </div>
+                </div>
+                <button type="submit" style="width: 100%;" class="btn-accion btn-bloquear">Confirmar Bloqueo</button>
+            </form>
         </div>
-        <div>
-            <label for="buscador-barbero" style="font-weight: bold;">✂️ Barbero: </label>
-            <select id="buscador-barbero" onchange="actualizarFiltros()" style="padding: 5px; margin-left: 5px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white;">
-                <option value="Todos" {% if barbero_seleccionado == 'Todos' %}selected{% endif %}>Todos</option>
-                {% for b in config.barberos %}
-                <option value="{{ b }}" {% if barbero_seleccionado == b %}selected{% endif %}>{{ b }}</option>
-                {% endfor %}
-            </select>
+    </div>
+
+    <div id="modalAgendar" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" onclick="cerrarModal('modalAgendar')">&times;</span>
+            <h3 style="margin-top: 0; color: #28a745;">➕ Nueva Cita</h3>
+            <form action="/admin_reservar" method="POST">
+                <div class="form-group">
+                    <label>Barbero:</label>
+                    <select name="barbero" required>
+                        {% for b in config.barberos %}
+                        <option value="{{ b }}">{{ b }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Cliente:</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Servicio principal:</label>
+                    <input type="text" name="servicios" placeholder="Ej: Corte y Barba" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Fecha:</label>
+                        <input type="date" name="fecha" value="{{ fecha }}" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Hora:</label>
+                        <input type="time" name="hora_inicio" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Duración (Minutos):</label>
+                    <input type="number" name="duracion" value="30" required>
+                </div>
+                <button type="submit" style="width: 100%;" class="btn-accion btn-agendar">Guardar Cita</button>
+            </form>
         </div>
-        <script>
-            function actualizarFiltros() {
-                const f = document.getElementById('buscador-fecha').value;
-                const b = document.getElementById('buscador-barbero').value;
-                window.location.href = '/admin?fecha=' + f + '&barbero=' + b;
+    </div>
+
+    <script>
+        function abrirModal(id) { document.getElementById(id).style.display = 'block'; }
+        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function actualizarFiltros() {
+            const f = document.getElementById('buscador-fecha').value;
+            const b = document.getElementById('buscador-barbero').value;
+            window.location.href = '/admin?fecha=' + f + '&barbero=' + b;
+        }
+
+        // Cerrar modales si se hace clic fuera de ellos
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = "none";
             }
-        </script>
-    </div>
-
-    <div style="background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444;">
-        <h3 style="margin-top: 0; color: {{ config.color_principal }};">➕ Reservar o Bloquear Horas</h3>
-        <form action="/admin_reservar" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap;">
-           <input type="text" name="nombre" placeholder="Concepto (Ej: Vacaciones o Cliente)" required style="flex: 1; padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white; min-width: 200px;">
-            <input type="date" name="fecha" value="{{ fecha }}" required style="padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white;">
-            <input type="time" name="hora_inicio" required style="padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white;">
-            <input type="number" name="duracion" placeholder="Minutos" required style="width: 100px; padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white;">
-            <select name="barbero" required style="padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #222; color: white;">
-                {% for b in config.barberos %}
-                <option value="{{ b }}" {% if barbero_seleccionado == b %}selected{% endif %}>{{ b }}</option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
+        }
+    </script>
 
     {% if citas %}
         {% for cita in citas %}

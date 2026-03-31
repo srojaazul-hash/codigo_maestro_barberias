@@ -13,8 +13,7 @@ app.secret_key = 'super_clave_secreta_barberia_2026'
 
 def enviar_telegram_barbero(nombre, fecha, hora, servicios):
     # Tendrás que rellenar estos dos datos más adelante
-    bot_token = '8520598678:AAHssHWMKlJBo8XOuzxMOy1nJuxPJb1hUC4' 
-    chat_id = '1911923919'
+
     
     mensaje = f"💈 ¡NUEVA RESERVA!\n\n👤 Cliente: {nombre}\n📅 Fecha: {fecha}\n⏰ Hora: {hora}\n✂️ Servicios: {servicios}"
     

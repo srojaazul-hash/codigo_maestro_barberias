@@ -158,12 +158,20 @@ def reservar():
 @login_required
 def admin():
     fecha_seleccionada = request.args.get('fecha', datetime.now().strftime('%Y-%m-%d'))
+    barbero_seleccionado = request.args.get('barbero', 'Todos')
+    
     conn = obtener_conexion()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM citas WHERE fecha = ? ORDER BY hora_inicio ASC", (fecha_seleccionada,))
+    
+    if barbero_seleccionado == 'Todos':
+        cursor.execute("SELECT * FROM citas WHERE fecha = ? ORDER BY hora_inicio ASC", (fecha_seleccionada,))
+    else:
+        cursor.execute("SELECT * FROM citas WHERE fecha = ? AND barbero = ? ORDER BY hora_inicio ASC", (fecha_seleccionada, barbero_seleccionado))
+        
     citas_hoy = cursor.fetchall()
     conn.close()
-    return render_template('admin.html', citas=citas_hoy, fecha=fecha_seleccionada, config=CONFIGURACION)
+    
+    return render_template('admin.html', citas=citas_hoy, fecha=fecha_seleccionada, barbero_seleccionado=barbero_seleccionado, config=CONFIGURACION)
 
 @app.route('/cancelar/<int:id>', methods=['POST'])
 @login_required
@@ -176,6 +184,30 @@ def cancelar_cita(id):
     conn.close()
     # Recargamos la misma fecha que el barbero estaba mirando
     return redirect(url_for('admin', fecha=fecha_actual))
+
+@app.route('/admin_reservar', methods=['POST'])
+@login_required
+def admin_reservar():
+    nombre = request.form.get('nombre') # Aquí puede poner "BLOQUEO" o "VACACIONES"
+    fecha = request.form.get('fecha')
+    hora_inicio = request.form.get('hora_inicio')
+    duracion = int(request.form.get('duracion'))
+    barbero = request.form.get('barbero')
+    
+    inicio_dt = datetime.strptime(hora_inicio, "%H:%M")
+    fin_dt = inicio_dt + timedelta(minutes=duracion)
+    hora_fin_str = fin_dt.strftime("%H:%M")
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO citas (cliente_nombre, cliente_telefono, cliente_email, barbero, fecha, hora_inicio, hora_fin, servicios_json, precio_total)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (nombre, "ADMIN_BLOCK", "", barbero, fecha, hora_inicio, hora_fin_str, "Bloqueo manual", "0"))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('admin', fecha=fecha))
 
 # --- ARRANQUE DEL SERVIDOR (SIEMPRE AL FINAL) ---
 if __name__ == '__main__':

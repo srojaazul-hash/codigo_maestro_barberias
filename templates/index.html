@@ -188,7 +188,6 @@
                 <h3 style="margin-top:0;">Tus datos</h3>
                 <input type="text" id="nombre" placeholder="Nombre completo">
                 <input type="tel" id="telefono" placeholder="Teléfono">
-                <input type="email" id="cliente_email" placeholder="Correo electrónico (para el ticket)">
                 <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
             </div>
         </div>
@@ -302,7 +301,6 @@
             const datos = {
                 nombre: document.getElementById('nombre').value,
                 telefono: document.getElementById('telefono').value,
-                email: document.getElementById('cliente_email').value,
                 barbero: document.getElementById('barbero').value,
                 fecha: document.getElementById('fecha-reserva').value,
                 hora_inicio: horaSeleccionada,
@@ -311,8 +309,8 @@
                 servicios: serviciosSeleccionados
             };
             
-            if(!datos.nombre || !datos.telefono || !datos.email) {
-    alert("Por favor, rellena tu nombre, teléfono y correo electrónico para recibir el comprobante.");
+            if(!datos.nombre || !datos.telefono) {
+    alert("Por favor, rellena tu nombre y teléfono.");
     return;
 }
 
@@ -323,7 +321,19 @@
             });
             const result = await res.json();
             if(result.status === "ok") {
-                alert("¡Cita reservada con éxito!");
+                const ticket = `
+✅ ¡RESERVA CONFIRMADA!
+--------------------------
+👤 Cliente: ${datos.nombre}
+📅 Fecha: ${datos.fecha}
+⏰ Hora: ${datos.hora_inicio}
+✂️ Servicio: ${datos.servicios}
+💰 Total: ${datos.precio}
+--------------------------
+¡Gracias por confiar en nosotros!
+Por favor, haz una CAPTURA DE PANTALLA de este ticket.
+                `;
+                alert(ticket);
                 
                 // --- LÓGICA DE NOTIFICACIONES PWA ---
                 if (Notification.permission === 'granted') {

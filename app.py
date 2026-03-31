@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 import sqlite3
 from config import CONFIGURACION
 from functools import wraps
-import smtplib
-from email.message import EmailMessage
 import urllib.request
 import urllib.parse
 
@@ -12,25 +10,6 @@ app = Flask(__name__)
 
 # Obligatorio para usar sesiones en Flask. Cambia esto por una cadena aleatoria en producción.
 app.secret_key = 'super_clave_secreta_barberia_2026'
-
-def enviar_correo_cliente(destinatario, nombre, fecha, hora):
-    remitente = "tu_correo@gmail.com" # Ya cambiaremos esto por tu correo real
-    password = "tu_contraseña_de_aplicacion" # Ya cambiaremos esto luego
-    
-    msg = EmailMessage()
-    msg.set_content(f"Hola {nombre},\n\nTu reserva en la barbería está confirmada.\n\n📅 Fecha: {fecha}\n⏰ Hora: {hora}\n\n¡Te esperamos!")
-    msg['Subject'] = 'Confirmación de tu reserva'
-    msg['From'] = remitente
-    msg['To'] = destinatario
-
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(remitente, password)
-        server.send_message(msg)
-        server.quit()
-        print("Correo enviado correctamente al cliente.")
-    except Exception as e:
-        print(f"Error enviando el correo: {e}")
 
 def enviar_telegram_barbero(nombre, fecha, hora, servicios):
     # Tendrás que rellenar estos dos datos más adelante
@@ -165,9 +144,6 @@ def reservar():
         conn.commit()
         conn.close()
         
-        # Disparamos el correo si el cliente nos ha dejado uno
-        if 'email' in d and d['email'] != '':
-            enviar_correo_cliente(d['email'], d['nombre'], d['fecha'], d['hora_inicio'])
             # Disparamos el aviso al móvil del barbero
         enviar_telegram_barbero(d['nombre'], d['fecha'], d['hora_inicio'], d['servicios'])
 

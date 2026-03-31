@@ -2,99 +2,132 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ config.nombre_negocio }}</title>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-    :root { 
-        --color-marca: {{ config.color_principal }}; 
-        --bg-app: #fdfdfd;
-        --card-bg: #ffffff;
-        --texto-principal: #2d3436;
-        --texto-secundario: #636e72;
-    }
+        :root { 
+            --color-marca: {{ config.color_principal }}; 
+            --bg-app: #fdfdfd;
+            --card-bg: #ffffff;
+            --texto-principal: #2d3436;
+            --texto-secundario: #636e72;
+        }
 
-    body { 
-        font-family: 'Poppins', sans-serif; 
-        margin: 0; padding: 0; 
-        background-color: var(--bg-app); 
-        color: var(--texto-principal); 
-        scroll-behavior: smooth; 
-    }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-app); 
+            color: var(--texto-principal); 
+        }
 
-    /* --- NAVEGACIÓN PREMIUM --- */
-    nav { 
-        background: rgba(255, 255, 255, 0.8); 
-        backdrop-filter: blur(10px); /* Efecto cristalizado */
-        padding: 15px 25px; 
-        position: sticky; top: 0; 
-        display: flex; justify-content: space-between; align-items: center; 
-        z-index: 1000; border-bottom: 1px solid #eee;
-    }
+        /* --- NAVEGACIÓN --- */
+        nav { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px); 
+            padding: 15px 25px; 
+            position: sticky; top: 0; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1000; border-bottom: 1px solid #eee;
+        }
 
-    .nav-links { 
-        position: absolute; top: 100%; left: 0; width: 100%; 
-        background: white; display: none; flex-direction: column; 
-        box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-    }
-    .nav-links.active { display: flex; }
-    .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #f8f8f8; font-weight: 500; }
+        .menu-hamburguesa { cursor: pointer; font-size: 24px; display: block; }
 
-    /* --- TARJETAS DE SERVICIO --- */
-    .card { 
-        background: var(--card-bg); 
-        padding: 25px; border-radius: 20px; 
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        border: 1px solid #f1f1f1;
-    }
+        .nav-links { 
+            position: absolute; top: 100%; left: 0; width: 100%; 
+            background: white; display: none; flex-direction: column; 
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        .nav-links.active { display: flex; }
+        .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #f8f8f8; font-weight: 500; }
 
-    .servicio-item { 
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 18px; margin-bottom: 12px;
-        border-radius: 15px; background: #fafafa;
-        transition: all 0.3s ease; border: 1px solid transparent;
-    }
+        /* --- TARJETAS Y SECCIONES (Corregido el espacio en blanco) --- */
+        section { padding: 30px 20px; max-width: 600px; margin: 0 auto; } 
+        #servicios { padding-bottom: 100px; } /* Espacio extra solo abajo del todo para la barra */
+        
+        .card { 
+            background: var(--card-bg); 
+            padding: 25px; border-radius: 20px; 
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid #f1f1f1;
+        }
 
-    /* Cuando el cliente marca un servicio, la tarjeta brilla */
-    .servicio-item:has(input:checked) {
-        border-color: var(--color-marca);
-        background: rgba(var(--color-marca-rgb), 0.05); /* Requiere conversión de color */
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
+        h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-top: 0; }
 
-    .servicio-item input { margin-right: 15px; accent-color: var(--color-marca); }
+        .servicio-item { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px; margin-bottom: 12px;
+            border-radius: 15px; background: #fafafa;
+            transition: all 0.3s ease; border: 1px solid transparent; cursor: pointer;
+        }
 
-    /* --- BOTONES Y RESUMEN --- */
-    .resumen-flotante {
-        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-        width: 90%; max-width: 450px;
-        background: #2d3436; color: white;
-        padding: 15px 25px; border-radius: 50px;
-        display: flex; justify-content: space-between; align-items: center;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        z-index: 1001;
-    }
+        .servicio-item:has(input:checked) {
+            border-color: var(--color-marca);
+            background: #f0f8ff; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
 
-    .btn-continuar {
-        background: var(--color-marca); color: white;
-        border: none; padding: 12px 25px; border-radius: 30px;
-        font-weight: 600; cursor: pointer; transition: 0.3s;
-    }
-    .btn-continuar:disabled { background: #555; opacity: 0.5; }
+        .servicio-item input { margin-right: 15px; accent-color: var(--color-marca); transform: scale(1.2); }
 
-    /* --- CALENDARIO Y HORAS --- */
-    .grid-horas { 
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; 
-    }
-    .btn-hora { 
-        padding: 12px; border: 1px solid #eee; background: white; 
-        border-radius: 12px; cursor: pointer; font-weight: 500;
-        transition: 0.2s;
-    }
-    .btn-hora:hover { border-color: var(--color-marca); color: var(--color-marca); }
-</style>
+        /* --- PREVENIR ZOOM FEOS EN MÓVIL (Letra a 16px mínimo) --- */
+        input, select, textarea {
+            font-size: 16px !important; 
+            width: 100%; padding: 15px; margin-bottom: 20px; 
+            border-radius: 12px; border: 1px solid #ddd; 
+            font-family: 'Poppins', sans-serif; box-sizing: border-box;
+            background-color: #f9f9f9;
+        }
+
+        input[type="date"] {
+            appearance: none; /* Mejora el aspecto del calendario nativo */
+            -webkit-appearance: none;
+            color: var(--texto-principal);
+        }
+
+        /* --- BOTONES Y RESUMEN FLOTANTE --- */
+        .resumen-flotante {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 450px;
+            background: #2d3436; color: white;
+            padding: 15px 25px; border-radius: 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+
+        .btn-continuar {
+            background: var(--color-marca); color: white;
+            border: none; padding: 12px 25px; border-radius: 30px;
+            font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 16px;
+        }
+        .btn-continuar:disabled { background: #555; opacity: 0.5; }
+        
+        .btn-principal { 
+            width: 100%; padding: 18px; background: var(--color-marca); color: white; 
+            border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 5px;
+        }
+
+        /* --- CALENDARIO Y HORAS (Corregido color fijo al seleccionar) --- */
+        .grid-horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+        
+        .btn-hora { 
+            padding: 15px 5px; border: 1px solid #ddd; background: white; 
+            border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s;
+            font-size: 16px; color: var(--texto-principal);
+        }
+        
+        /* Esta es la clase que se queda fija al hacer tap */
+        .btn-hora.seleccionado { 
+            border-color: var(--color-marca); 
+            color: white; 
+            background: var(--color-marca); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        footer { text-align: center; padding: 20px; font-size: 14px; color: #888; }
+    </style>
 </head>
 <body>
 
@@ -113,61 +146,64 @@
             <h2>Reserva tu cita</h2>
             
             {% if config.activar_eleccion_barbero %}
-            <label>Selecciona Barbero:</label>
-            <select id="barbero" style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 6px;">
+            <label style="font-weight: 600; margin-bottom: 10px; display: block;">Selecciona Barbero:</label>
+            <select id="barbero">
                 {% for barbero in config.barberos %}
                 <option value="{{ barbero }}">{{ barbero }}</option>
                 {% endfor %}
             </select>
             {% endif %}
 
+            <label style="font-weight: 600; margin-bottom: 10px; display: block;">Tus servicios:</label>
             <div id="lista-servicios">
                 {% for nombre, datos in config.servicios.items() %}
                 <label class="servicio-item">
                     <div>
                         <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
-                        {{ nombre }}
+                        {{ nombre }} <small style="color: #888;">({{ datos.duracion }} min)</small>
                     </div>
                     <strong>{{ datos.precio }} €</strong>
                 </label>
                 {% endfor %}
             </div>
 
-            <div class="resumen">
-                Total: <span id="total-precio">0</span> € | <span id="total-duracion">0</span> min
+            <div class="resumen-flotante" id="barra-pago">
+                <div>
+                    <span id="total-precio" style="font-size: 1.4em; font-weight: 600;">0</span>€
+                    <small style="opacity: 0.7; margin-left: 5px;">(<span id="total-duracion">0</span> min)</small>
+                </div>
+                <button class="btn-continuar" id="btn-ver-fechas" onclick="mostrarCalendario()" disabled>Reservar</button>
             </div>
 
-            <button class="btn-principal" id="btn-ver-fechas" onclick="mostrarCalendario()" disabled style="margin-top:20px;">Continuar a fechas</button>
-
-            <div id="seccion-calendario" style="display:none; margin-top: 30px;">
-                <h3>Elige fecha y hora</h3>
-                <input type="date" id="fecha-reserva" style="width: 100%; padding: 12px; margin-bottom: 20px;">
+            <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                <h3 style="margin-top:0;">Elige fecha y hora</h3>
+                <input type="date" id="fecha-reserva">
                 <div id="contenedor-horas" class="grid-horas"></div>
             </div>
 
-            <div id="seccion-datos" style="display:none; margin-top: 30px;">
-                <h3>Tus datos</h3>
-                <input type="text" id="nombre" placeholder="Nombre completo" style="width: 100%; padding: 12px; margin-bottom: 10px; box-sizing: border-box;">
-                <input type="tel" id="telefono" placeholder="Teléfono" style="width: 100%; padding: 12px; margin-bottom: 20px; box-sizing: border-box;">
+            <div id="seccion-datos" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                <h3 style="margin-top:0;">Tus datos</h3>
+                <input type="text" id="nombre" placeholder="Nombre completo">
+                <input type="tel" id="telefono" placeholder="Teléfono">
                 <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
             </div>
         </div>
     </section>
 
-    <section id="info" style="background: #eee;">
-        <div class="card">
+    <section id="info" style="padding-top: 0;">
+        <div class="card" style="margin-bottom: 0;">
             <h2>Sobre nosotros</h2>
             <p>Bienvenidos a {{ config.nombre_negocio }}. Somos expertos en barbería clásica y moderna.</p>
             <p>Calidad, estilo y un ambiente relajado para que disfrutes de tu momento.</p>
         </div>
     </section>
 
-    <section id="ubicacion">
-        <div class="card">
+    <section id="ubicacion" style="padding-top: 15px;">
+        <div class="card" style="margin-bottom: 0;">
             <h2>Ubicación y Horario</h2>
             <p>📍 Calle Falsa 123, Tu Ciudad.</p>
             <p><strong>Horarios:</strong></p>
-            <ul>
+            <ul style="color: var(--texto-secundario); line-height: 1.8;">
                 <li>Mañanas: {{ config.horario.apertura_manana }} - {{ config.horario.cierre_manana }}</li>
                 <li>Tardes: {{ config.horario.apertura_tarde }} - {{ config.horario.cierre_tarde }}</li>
             </ul>
@@ -175,16 +211,14 @@
     </section>
 
     <footer>
-        &copy; 2026 {{ config.nombre_negocio }} - Powered by Tu Agencia
+        &copy; 2026 {{ config.nombre_negocio }} - Creado por Rubén
     </footer>
 
     <script>
-        // --- LÓGICA DEL MENÚ ---
         function toggleMenu() {
             document.getElementById('navLinks').classList.toggle('active');
         }
 
-        // --- LÓGICA DE RESERVA (COPIADA DE LA ANTERIOR) ---
         const checkboxes = document.querySelectorAll('.checkbox-servicio');
         const totalPrecioEl = document.getElementById('total-precio');
         const totalDuracionEl = document.getElementById('total-duracion');
@@ -206,9 +240,16 @@
 
         checkboxes.forEach(box => box.addEventListener('change', actualizarCarrito));
 
+        // Scroll corregido para el calendario
         function mostrarCalendario() {
-            document.getElementById('seccion-calendario').style.display = 'block';
-            btnVerFechas.style.display = 'none';
+            const seccionCal = document.getElementById('seccion-calendario');
+            seccionCal.style.display = 'block';
+            document.getElementById('barra-pago').style.display = 'none'; 
+            
+            // Un pequeño retraso para asegurar que se dibuje antes de hacer scroll
+            setTimeout(() => {
+                seccionCal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
 
         document.getElementById('fecha-reserva').addEventListener('change', async function() {
@@ -223,19 +264,41 @@
             const data = await res.json();
             const contenedor = document.getElementById('contenedor-horas');
             contenedor.innerHTML = '';
+            
+            if (data.horas.length === 0) {
+                contenedor.innerHTML = '<p style="grid-column: span 3; text-align: center; color: #e74c3c;">No hay huecos disponibles para esta fecha.</p>';
+                return;
+            }
+
             data.horas.forEach(h => {
                 const btn = document.createElement('button');
                 btn.textContent = h;
                 btn.className = 'btn-hora';
-                btn.onclick = () => seleccionarHora(h);
+                // Le pasamos el propio botón a la función para poder cambiarle el color
+                btn.onclick = function() { seleccionarHora(h, this); };
                 contenedor.appendChild(btn);
             });
         });
 
         let horaSeleccionada = "";
-        function seleccionarHora(h) {
+        
+        // Función de seleccionar hora corregida (Color fijo y scroll suave)
+        function seleccionarHora(h, elementoBoton) {
             horaSeleccionada = h;
-            document.getElementById('seccion-datos').style.display = 'block';
+            
+            // 1. Quitar la clase 'seleccionado' a todos los botones
+            document.querySelectorAll('.btn-hora').forEach(b => b.classList.remove('seleccionado'));
+            
+            // 2. Ponérsela solo al que acabamos de tocar
+            elementoBoton.classList.add('seleccionado');
+
+            // 3. Mostrar los datos y hacer scroll suave
+            const seccionDatos = document.getElementById('seccion-datos');
+            seccionDatos.style.display = 'block';
+            
+            setTimeout(() => {
+                seccionDatos.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         }
 
         async function confirmarReserva() {
@@ -250,6 +313,12 @@
                 precio: totalPrecioEl.textContent,
                 servicios: serviciosSeleccionados
             };
+            
+            if(!datos.nombre || !datos.telefono) {
+                alert("Por favor, rellena tu nombre y teléfono.");
+                return;
+            }
+
             const res = await fetch('/reservar', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -257,8 +326,10 @@
             });
             const result = await res.json();
             if(result.status === "ok") {
-                alert("¡Cita reservada!");
+                alert("¡Cita reservada con éxito!");
                 location.reload();
+            } else {
+                alert("Hubo un error al reservar: " + result.mensaje);
             }
         }
     </script>

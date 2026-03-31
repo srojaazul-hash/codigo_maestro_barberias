@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - {{ config.nombre_negocio }}</title>
+    <style>
+        /* El color principal se inyecta mágicamente desde config.py */
+        :root { --color-marca: {{ config.color_principal }}; }
+        
+        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .contenedor { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--color-marca); }
+        h3 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+        
+        .servicio-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; cursor: pointer; }
+        .servicio-item input { margin-right: 10px; transform: scale(1.2); cursor: pointer; }
+        
+        .resumen { background: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 25px; text-align: center; font-size: 1.1em; }
+        .resumen strong { color: var(--color-marca); font-size: 1.2em; }
+        
+        button.btn-continuar { width: 100%; padding: 15px; background-color: var(--color-marca); color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 20px; }
+        button.btn-continuar:disabled { background-color: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <h1>{{ config.nombre_negocio }}</h1>
+        
+        {% if config.activar_eleccion_barbero %}
+        <h3>1. ¿Quién te corta?</h3>
+        <select id="barbero" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
+            {% for barbero in config.barberos %}
+            <option value="{{ barbero }}">{{ barbero }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+
+        <h3>2. Selecciona tus servicios</h3>
+        <div id="lista-servicios">
+            {% for nombre, datos in config.servicios.items() %}
+            <label class="servicio-item">
+                <div>
+                    <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
+                    {{ nombre }} <small style="color: #666;">({{ datos.duracion }} min)</small>
+                </div>
+                <strong>{{ datos.precio }} €</strong>
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="resumen">
+            <p>Total a pagar: <strong id="total-precio">0</strong><strong> €</strong></p>
+            <p>Duración de la cita: <strong id="total-duracion">0</strong><strong> min</strong></p>
+        </div>
+
+        <button class="btn-continuar" id="btn-continuar" disabled>Continuar a fechas</button>
+    </div>
+
+    <script>
+        // Lógica matemática del navegador (Frontend)
+        const checkboxes = document.querySelectorAll('.checkbox-servicio');
+        const totalPrecioEl = document.getElementById('total-precio');
+        const totalDuracionEl = document.getElementById('total-duracion');
+        const btnContinuar = document.getElementById('btn-continuar');
+
+        // Función que recalcula todo cuando el cliente marca/desmarca algo
+        function actualizarCarrito() {
+            let precio = 0;
+            let duracion = 0;
+            let algunServicioSeleccionado = false;
+
+            checkboxes.forEach(box => {
+                if (box.checked) {
+                    precio += parseFloat(box.getAttribute('data-precio'));
+                    duracion += parseInt(box.getAttribute('data-duracion'));
+                    algunServicioSeleccionado = true;
+                }
+            });
+
+            // Actualizamos los textos en la pantalla
+            totalPrecioEl.textContent = precio;
+            totalDuracionEl.textContent = duracion;
+
+            // Bloqueamos el botón si no ha elegido nada para evitar errores
+            btnContinuar.disabled = !algunServicioSeleccionado;
+        }
+
+        // Le pegamos "la oreja" a todos los checkboxes para que avisen si cambian
+        checkboxes.forEach(box => {
+            box.addEventListener('change', actualizarCarrito);
+        });
+    </script>
+
+</body>
+</html>

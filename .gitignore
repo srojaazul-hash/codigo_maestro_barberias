@@ -1,0 +1,13 @@
+# Entorno virtual
+.venv/
+env/
+__pycache__/
+
+# Configuración sensible
+.env
+
+# Bases de datos (las generamos con el script, no se suben)
+*.db
+
+# Archivos de sistema
+.DS_Store

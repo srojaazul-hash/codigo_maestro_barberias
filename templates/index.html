@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="{{ config.color_principal }}">
+
     <title>{{ config.nombre_negocio }}</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
@@ -42,9 +46,9 @@
         .nav-links.active { display: flex; }
         .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #f8f8f8; font-weight: 500; }
 
-        /* --- TARJETAS Y SECCIONES (Corregido el espacio en blanco) --- */
+        /* --- TARJETAS Y SECCIONES --- */
         section { padding: 30px 20px; max-width: 600px; margin: 0 auto; } 
-        #servicios { padding-bottom: 100px; } /* Espacio extra solo abajo del todo para la barra */
+        #servicios { padding-bottom: 100px; } 
         
         .card { 
             background: var(--card-bg); 
@@ -71,7 +75,7 @@
 
         .servicio-item input { margin-right: 15px; accent-color: var(--color-marca); transform: scale(1.2); }
 
-        /* --- PREVENIR ZOOM FEOS EN MÓVIL (Letra a 16px mínimo) --- */
+        /* --- PREVENIR ZOOM FEOS EN MÓVIL --- */
         input, select, textarea {
             font-size: 16px !important; 
             width: 100%; padding: 15px; margin-bottom: 20px; 
@@ -81,7 +85,7 @@
         }
 
         input[type="date"] {
-            appearance: none; /* Mejora el aspecto del calendario nativo */
+            appearance: none;
             -webkit-appearance: none;
             color: var(--texto-principal);
         }
@@ -109,7 +113,7 @@
             border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 5px;
         }
 
-        /* --- CALENDARIO Y HORAS (Corregido color fijo al seleccionar) --- */
+        /* --- CALENDARIO Y HORAS --- */
         .grid-horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
         
         .btn-hora { 
@@ -118,7 +122,6 @@
             font-size: 16px; color: var(--texto-principal);
         }
         
-        /* Esta es la clase que se queda fija al hacer tap */
         .btn-hora.seleccionado { 
             border-color: var(--color-marca); 
             color: white; 
@@ -240,13 +243,11 @@
 
         checkboxes.forEach(box => box.addEventListener('change', actualizarCarrito));
 
-        // Scroll corregido para el calendario
         function mostrarCalendario() {
             const seccionCal = document.getElementById('seccion-calendario');
             seccionCal.style.display = 'block';
             document.getElementById('barra-pago').style.display = 'none'; 
             
-            // Un pequeño retraso para asegurar que se dibuje antes de hacer scroll
             setTimeout(() => {
                 seccionCal.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
@@ -274,7 +275,6 @@
                 const btn = document.createElement('button');
                 btn.textContent = h;
                 btn.className = 'btn-hora';
-                // Le pasamos el propio botón a la función para poder cambiarle el color
                 btn.onclick = function() { seleccionarHora(h, this); };
                 contenedor.appendChild(btn);
             });
@@ -282,17 +282,12 @@
 
         let horaSeleccionada = "";
         
-        // Función de seleccionar hora corregida (Color fijo y scroll suave)
         function seleccionarHora(h, elementoBoton) {
             horaSeleccionada = h;
             
-            // 1. Quitar la clase 'seleccionado' a todos los botones
             document.querySelectorAll('.btn-hora').forEach(b => b.classList.remove('seleccionado'));
-            
-            // 2. Ponérsela solo al que acabamos de tocar
             elementoBoton.classList.add('seleccionado');
 
-            // 3. Mostrar los datos y hacer scroll suave
             const seccionDatos = document.getElementById('seccion-datos');
             seccionDatos.style.display = 'block';
             
@@ -327,10 +322,29 @@
             const result = await res.json();
             if(result.status === "ok") {
                 alert("¡Cita reservada con éxito!");
+                
+                // --- LÓGICA DE NOTIFICACIONES PWA ---
+                if (Notification.permission === 'granted') {
+                    new Notification("¡Reserva Confirmada!", {
+                        body: "Tu cita en {{ config.nombre_negocio }} ha sido registrada.",
+                        icon: "/static/icon.png"
+                    });
+                }
+                
                 location.reload();
             } else {
                 alert("Hubo un error al reservar: " + result.mensaje);
             }
+        }
+
+        // --- REGISTRO DEL SERVICE WORKER Y PERMISO PWA ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+            .then(() => console.log("App lista para instalar"));
+        }
+
+        if (Notification.permission !== 'granted') {
+            Notification.permission === 'default' && Notification.requestPermission();
         }
     </script>
 </body>

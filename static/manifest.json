@@ -1,0 +1,16 @@
+{
+  "name": "{{ config.nombre_negocio }}",
+  "short_name": "Barberia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "{{ config.color_principal }}",
+  "icons": [
+    {
+      "src": "/static/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

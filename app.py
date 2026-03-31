@@ -209,6 +209,40 @@ def admin_reservar():
     
     return redirect(url_for('admin', fecha=fecha))
 
+@app.route('/admin_bloquear', methods=['POST'])
+@login_required
+def admin_bloquear():
+    barbero = request.form.get('barbero')
+    concepto = request.form.get('concepto')
+    fecha_inicio_str = request.form.get('fecha_inicio')
+    fecha_fin_str = request.form.get('fecha_fin')
+    hora_inicio = request.form.get('hora_inicio')
+    hora_fin = request.form.get('hora_fin')
+
+    # Convertimos los textos de fecha a objetos matemáticos de Python
+    fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
+    fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    # Bucle: Mientras la fecha que estamos procesando sea menor o igual a la fecha final
+    delta = timedelta(days=1)
+    fecha_actual = fecha_inicio
+    
+    while fecha_actual <= fecha_fin:
+        cursor.execute("""
+            INSERT INTO citas (cliente_nombre, cliente_telefono, cliente_email, barbero, fecha, hora_inicio, hora_fin, servicios_json, precio_total)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (concepto, "ADMIN_BLOCK", "", barbero, fecha_actual.strftime('%Y-%m-%d'), hora_inicio, hora_fin, "Bloqueo de agenda", "0"))
+        
+        fecha_actual += delta # Avanzamos un día en el calendario
+
+    conn.commit()
+    conn.close()
+
+    # Devolvemos al admin al día en el que empezó el bloqueo
+    return redirect(url_for('admin', fecha=fecha_inicio_str))
 # --- ARRANQUE DEL SERVIDOR (SIEMPRE AL FINAL) ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

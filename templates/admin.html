@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Control - {{ config.nombre_negocio }}</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: white; padding: 20px; }
+        .cita-card { 
+            background: #333; padding: 15px; border-radius: 8px; 
+            margin-bottom: 15px; border-left: 5px solid {{ config.color_principal }}; 
+        }
+        .hora { font-size: 1.5em; font-weight: bold; color: {{ config.color_principal }}; }
+        .cliente { font-size: 1.2em; margin: 5px 0; }
+        .servicios { color: #aaa; font-style: italic; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .badge { background: #555; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Agenda de Hoy</h1>
+        <div class="badge">{{ fecha }}</div>
+    </div>
+
+    {% if citas %}
+        {% for cita in citas %}
+        <div class="cita-card">
+            <div class="hora">{{ cita.hora_inicio }} - {{ cita.hora_fin }}</div>
+            <div class="cliente">{{ cita.cliente_nombre }}</div>
+            <div class="servicios">{{ cita.servicios_json }}</div>
+            <div style="margin-top:10px;">
+                <a href="tel:{{ cita.cliente_telefono }}" style="color: lightblue; text-decoration: none;">📞 Llamar</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No tienes citas para hoy. ¡Día de relax!</p>
+    {% endif %}
+
+    <button onclick="location.reload()" style="width:100%; padding:15px; background: #444; color:white; border:none; border-radius:5px; margin-top:20px;">🔄 Actualizar Agenda</button>
+
+</body>
+</html>

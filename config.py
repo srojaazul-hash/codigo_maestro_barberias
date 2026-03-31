@@ -28,5 +28,6 @@ CONFIGURACION = {
     "barberos": ["Armando", "Lujan", "Ruben"],
     "activar_eleccion_barbero": True, 
     "telefono_bizum": "+34600000000",
+    "admin_password": "admin123", # Dile al cliente que la cambie luego
 }
 # Modifica solo los valores de este diccionario para cada cliente nuevo.

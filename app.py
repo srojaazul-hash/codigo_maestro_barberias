@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime, timedelta
 import sqlite3
@@ -6,9 +5,10 @@ from config import CONFIGURACION
 
 app = Flask(__name__)
 
+# --- FUNCIONES DE APOYO ---
 def obtener_conexion():
     conn = sqlite3.connect('reservas_cliente.db')
-    conn.row_factory = sqlite3.Row # Permite acceder a columnas por nombre
+    conn.row_factory = sqlite3.Row
     return conn
 
 def calcular_huecos_disponibles(fecha_str: str, barbero: str, duracion_total_minutos: int) -> list:
@@ -19,7 +19,6 @@ def calcular_huecos_disponibles(fecha_str: str, barbero: str, duracion_total_min
     
     tiempo_necesario = duracion_total_minutos + cortesia
     
-    # CONEXIÓN REAL: Buscamos citas existentes para ese barbero y fecha
     conn = obtener_conexion()
     cursor = conn.cursor()
     cursor.execute("SELECT hora_inicio, hora_fin FROM citas WHERE fecha = ? AND barbero = ? AND estado != 'cancelada'", (fecha_str, barbero))
@@ -53,27 +52,26 @@ def calcular_huecos_disponibles(fecha_str: str, barbero: str, duracion_total_min
     procesar_turno(horario["apertura_tarde"], horario["cierre_tarde"])
     return huecos_libres
 
+# --- RUTAS DE LA WEB ---
+
 @app.route('/')
 def inicio():
     return render_template('index.html', config=CONFIGURACION)
 
-# RUTA 1: Buscar horas libres (se llama vía JavaScript)
 @app.route('/obtener_horas', methods=['POST'])
 def obtener_horas():
     datos = request.json
     horas = calcular_huecos_disponibles(datos['fecha'], datos['barbero'], int(datos['duracion']))
     return jsonify({"horas": horas})
 
-# RUTA 2: Guardar la reserva final
 @app.route('/reservar', methods=['POST'])
 def reservar():
     d = request.json
-    # Calculamos hora_fin para la base de datos
-    inicio = datetime.strptime(d['hora_inicio'], "%H:%M")
-    fin = inicio + timedelta(minutes=int(d['duracion']) + CONFIGURACION["tiempo_cortesia"])
-    hora_fin_str = fin.strftime("%H:%M")
-
     try:
+        inicio_dt = datetime.strptime(d['hora_inicio'], "%H:%M")
+        fin_dt = inicio_dt + timedelta(minutes=int(d['duracion']) + CONFIGURACION["tiempo_cortesia"])
+        hora_fin_str = fin_dt.strftime("%H:%M")
+
         conn = obtener_conexion()
         cursor = conn.cursor()
         cursor.execute("""
@@ -86,5 +84,20 @@ def reservar():
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)})
 
+@app.route('/admin')
+def admin():
+    password_query = request.args.get('pass')
+    if password_query != CONFIGURACION["admin_password"]:
+        return "Acceso denegado. Contraseña incorrecta.", 403
+        
+    hoy = datetime.now().strftime('%Y-%m-%d')
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM citas WHERE fecha = ? ORDER BY hora_inicio ASC", (hoy,))
+    citas_hoy = cursor.fetchall()
+    conn.close()
+    return render_template('admin.html', citas=citas_hoy, fecha=hoy, config=CONFIGURACION)
+
+# --- ARRANQUE DEL SERVIDOR (SIEMPRE AL FINAL) ---
 if __name__ == '__main__':
     app.run(debug=True)

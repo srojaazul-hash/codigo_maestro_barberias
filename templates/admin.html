@@ -20,8 +20,13 @@
 <body>
 
     <div class="header">
-        <h1>Agenda de Hoy</h1>
+       <h1>Agenda</h1>
         <div class="badge">{{ fecha }}</div>
+    </div>
+
+    <div style="margin-bottom: 20px; background: #333; padding: 15px; border-radius: 8px;">
+        <label for="buscador-fecha" style="font-weight: bold;">📅 Ver otro día: </label>
+        <input type="date" id="buscador-fecha" value="{{ fecha }}" onchange="window.location.href='/admin?fecha=' + this.value" style="padding: 5px; margin-left: 10px; border-radius: 4px; border: none; background: #222; color: white;">
     </div>
 
     {% if citas %}
@@ -32,6 +37,10 @@
             <div class="servicios">{{ cita.servicios_json }}</div>
             <div style="margin-top:10px;">
                 <a href="tel:{{ cita.cliente_telefono }}" style="color: lightblue; text-decoration: none;">📞 Llamar</a>
+                <form action="/cancelar/{{ cita.id }}" method="POST" onsubmit="return confirm('¿Seguro que quieres cancelar y borrar esta cita?');" style="display:inline; float:right;">
+                    <input type="hidden" name="fecha_actual" value="{{ fecha }}">
+                    <button type="submit" style="background: #cc0000; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">❌ Cancelar</button>
+                </form>
             </div>
         </div>
         {% endfor %}

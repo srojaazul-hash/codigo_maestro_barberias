@@ -157,13 +157,25 @@ def reservar():
 @app.route('/admin')
 @login_required
 def admin():
-    hoy = datetime.now().strftime('%Y-%m-%d')
+    fecha_seleccionada = request.args.get('fecha', datetime.now().strftime('%Y-%m-%d'))
     conn = obtener_conexion()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM citas WHERE fecha = ? ORDER BY hora_inicio ASC", (hoy,))
+    cursor.execute("SELECT * FROM citas WHERE fecha = ? ORDER BY hora_inicio ASC", (fecha_seleccionada,))
     citas_hoy = cursor.fetchall()
     conn.close()
-    return render_template('admin.html', citas=citas_hoy, fecha=hoy, config=CONFIGURACION)
+    return render_template('admin.html', citas=citas_hoy, fecha=fecha_seleccionada, config=CONFIGURACION)
+
+@app.route('/cancelar/<int:id>', methods=['POST'])
+@login_required
+def cancelar_cita(id):
+    fecha_actual = request.form.get('fecha_actual')
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM citas WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    # Recargamos la misma fecha que el barbero estaba mirando
+    return redirect(url_for('admin', fecha=fecha_actual))
 
 # --- ARRANQUE DEL SERVIDOR (SIEMPRE AL FINAL) ---
 if __name__ == '__main__':

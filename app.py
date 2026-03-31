@@ -2,10 +2,13 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from datetime import datetime, timedelta
 import sqlite3
 from config import CONFIGURACION
+import os
+from dotenv import load_dotenv
 from functools import wraps
 import urllib.request
 import urllib.parse
 
+load_dotenv() # Carga las variables del archivo .env
 app = Flask(__name__)
 
 # Obligatorio para usar sesiones en Flask. Cambia esto por una cadena aleatoria en producción.
@@ -13,8 +16,8 @@ app.secret_key = 'super_clave_secreta_barberia_2026'
 
 def enviar_telegram_barbero(nombre, fecha, hora, servicios):
     # Tendrás que rellenar estos dos datos más adelante
-    bot_token = '8520598678:AAHssHWMKlJBo8XOuzxMOy1nJuxPJb1hUC4' 
-    chat_id = '1911923919'
+    bot_token = os.getenv("TELEGRAM_TOKEN") 
+    chat_id = os.getenv("TELEGRAM_ID")
     
     mensaje = f"💈 ¡NUEVA RESERVA!\n\n👤 Cliente: {nombre}\n📅 Fecha: {fecha}\n⏰ Hora: {hora}\n✂️ Servicios: {servicios}"
     

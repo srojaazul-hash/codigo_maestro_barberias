@@ -5,52 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config.nombre_negocio }}</title>
     <style>
-        :root { 
-            --color-marca: {{ config.color_principal }}; 
-            --bg-body: #f8f9fa;
-        }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: var(--bg-body); color: #333; scroll-behavior: smooth; }
+    :root { 
+        --color-marca: {{ config.color_principal }}; 
+        --bg-app: #fdfdfd;
+        --card-bg: #ffffff;
+        --texto-principal: #2d3436;
+        --texto-secundario: #636e72;
+    }
 
-        /* --- NAVEGACIÓN --- */
-        nav { 
-            background: var(--color-marca); 
-            color: white; 
-            padding: 15px 20px; 
-            position: sticky; 
-            top: 0; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+    body { 
+        font-family: 'Poppins', sans-serif; 
+        margin: 0; padding: 0; 
+        background-color: var(--bg-app); 
+        color: var(--texto-principal); 
+        scroll-behavior: smooth; 
+    }
 
-        .menu-hamburguesa { cursor: pointer; font-size: 24px; display: block; }
-        
-        .nav-links { 
-            position: absolute; top: 100%; left: 0; width: 100%; 
-            background: var(--color-marca); display: none; flex-direction: column; 
-        }
-        .nav-links.active { display: flex; }
-        .nav-links a { color: white; padding: 15px; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.1); }
+    /* --- NAVEGACIÓN PREMIUM --- */
+    nav { 
+        background: rgba(255, 255, 255, 0.8); 
+        backdrop-filter: blur(10px); /* Efecto cristalizado */
+        padding: 15px 25px; 
+        position: sticky; top: 0; 
+        display: flex; justify-content: space-between; align-items: center; 
+        z-index: 1000; border-bottom: 1px solid #eee;
+    }
 
-        /* --- SECCIONES --- */
-        section { padding: 60px 20px; min-height: 80vh; max-width: 600px; margin: 0 auto; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .nav-links { 
+        position: absolute; top: 100%; left: 0; width: 100%; 
+        background: white; display: none; flex-direction: column; 
+        box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    }
+    .nav-links.active { display: flex; }
+    .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #f8f8f8; font-weight: 500; }
 
-        /* --- ESTILOS DE COMPONENTES --- */
-        h2 { color: var(--color-marca); text-align: center; margin-bottom: 30px; }
-        .servicio-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .resumen { background: #333; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
-        .btn-principal { width: 100%; padding: 18px; background: var(--color-marca); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-principal:disabled { background: #ccc; }
-        
-        .grid-horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .btn-hora { padding: 12px; border: 1px solid var(--color-marca); background: white; border-radius: 6px; cursor: pointer; }
+    /* --- TARJETAS DE SERVICIO --- */
+    .card { 
+        background: var(--card-bg); 
+        padding: 25px; border-radius: 20px; 
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid #f1f1f1;
+    }
 
-        footer { text-align: center; padding: 40px; font-size: 14px; color: #888; }
-    </style>
+    .servicio-item { 
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 18px; margin-bottom: 12px;
+        border-radius: 15px; background: #fafafa;
+        transition: all 0.3s ease; border: 1px solid transparent;
+    }
+
+    /* Cuando el cliente marca un servicio, la tarjeta brilla */
+    .servicio-item:has(input:checked) {
+        border-color: var(--color-marca);
+        background: rgba(var(--color-marca-rgb), 0.05); /* Requiere conversión de color */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .servicio-item input { margin-right: 15px; accent-color: var(--color-marca); }
+
+    /* --- BOTONES Y RESUMEN --- */
+    .resumen-flotante {
+        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+        width: 90%; max-width: 450px;
+        background: #2d3436; color: white;
+        padding: 15px 25px; border-radius: 50px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        z-index: 1001;
+    }
+
+    .btn-continuar {
+        background: var(--color-marca); color: white;
+        border: none; padding: 12px 25px; border-radius: 30px;
+        font-weight: 600; cursor: pointer; transition: 0.3s;
+    }
+    .btn-continuar:disabled { background: #555; opacity: 0.5; }
+
+    /* --- CALENDARIO Y HORAS --- */
+    .grid-horas { 
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; 
+    }
+    .btn-hora { 
+        padding: 12px; border: 1px solid #eee; background: white; 
+        border-radius: 12px; cursor: pointer; font-weight: 500;
+        transition: 0.2s;
+    }
+    .btn-hora:hover { border-color: var(--color-marca); color: var(--color-marca); }
+</style>
 </head>
 <body>
 

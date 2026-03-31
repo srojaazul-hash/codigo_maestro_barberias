@@ -3,95 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservas - {{ config.nombre_negocio }}</title>
+    <title>{{ config.nombre_negocio }}</title>
     <style>
-        /* El color principal se inyecta mágicamente desde config.py */
-        :root { --color-marca: {{ config.color_principal }}; }
+        :root { 
+            --color-marca: {{ config.color_principal }}; 
+            --bg-body: #f8f9fa;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: var(--bg-body); color: #333; scroll-behavior: smooth; }
+
+        /* --- NAVEGACIÓN --- */
+        nav { 
+            background: var(--color-marca); 
+            color: white; 
+            padding: 15px 20px; 
+            position: sticky; 
+            top: 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .menu-hamburguesa { cursor: pointer; font-size: 24px; display: block; }
         
-        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-        .contenedor { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--color-marca); }
-        h3 { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+        .nav-links { 
+            position: absolute; top: 100%; left: 0; width: 100%; 
+            background: var(--color-marca); display: none; flex-direction: column; 
+        }
+        .nav-links.active { display: flex; }
+        .nav-links a { color: white; padding: 15px; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- SECCIONES --- */
+        section { padding: 60px 20px; min-height: 80vh; max-width: 600px; margin: 0 auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+        /* --- ESTILOS DE COMPONENTES --- */
+        h2 { color: var(--color-marca); text-align: center; margin-bottom: 30px; }
+        .servicio-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee; }
+        .resumen { background: #333; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+        .btn-principal { width: 100%; padding: 18px; background: var(--color-marca); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-principal:disabled { background: #ccc; }
         
-        .servicio-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; cursor: pointer; }
-        .servicio-item input { margin-right: 10px; transform: scale(1.2); cursor: pointer; }
-        
-        .resumen { background: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 25px; text-align: center; font-size: 1.1em; }
-        .resumen strong { color: var(--color-marca); font-size: 1.2em; }
-        
-        button.btn-continuar { width: 100%; padding: 15px; background-color: var(--color-marca); color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 20px; }
-        button.btn-continuar:disabled { background-color: #ccc; cursor: not-allowed; }
+        .grid-horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .btn-hora { padding: 12px; border: 1px solid var(--color-marca); background: white; border-radius: 6px; cursor: pointer; }
+
+        footer { text-align: center; padding: 40px; font-size: 14px; color: #888; }
     </style>
 </head>
 <body>
 
-    <div class="contenedor">
-        <h1>{{ config.nombre_negocio }}</h1>
-        
-        {% if config.activar_eleccion_barbero %}
-        <h3>1. ¿Quién te corta?</h3>
-        <select id="barbero" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
-            {% for barbero in config.barberos %}
-            <option value="{{ barbero }}">{{ barbero }}</option>
-            {% endfor %}
-        </select>
-        {% endif %}
-
-        <h3>2. Selecciona tus servicios</h3>
-        <div id="lista-servicios">
-            {% for nombre, datos in config.servicios.items() %}
-            <label class="servicio-item">
-                <div>
-                    <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
-                    {{ nombre }} <small style="color: #666;">({{ datos.duracion }} min)</small>
-                </div>
-                <strong>{{ datos.precio }} €</strong>
-            </label>
-            {% endfor %}
+    <nav>
+        <div style="font-weight: bold; font-size: 1.2em;">{{ config.nombre_negocio }}</div>
+        <div class="menu-hamburguesa" onclick="toggleMenu()">☰</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#servicios" onclick="toggleMenu()">Reserva tu cita</a>
+            <a href="#info" onclick="toggleMenu()">Sobre nosotros</a>
+            <a href="#ubicacion" onclick="toggleMenu()">Contacto y Horario</a>
         </div>
+    </nav>
 
-        <div class="resumen">
-            <p>Total a pagar: <strong id="total-precio">0</strong><strong> €</strong></p>
-            <p>Duración de la cita: <strong id="total-duracion">0</strong><strong> min</strong></p>
+    <section id="servicios">
+        <div class="card">
+            <h2>Reserva tu cita</h2>
+            
+            {% if config.activar_eleccion_barbero %}
+            <label>Selecciona Barbero:</label>
+            <select id="barbero" style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 6px;">
+                {% for barbero in config.barberos %}
+                <option value="{{ barbero }}">{{ barbero }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+
+            <div id="lista-servicios">
+                {% for nombre, datos in config.servicios.items() %}
+                <label class="servicio-item">
+                    <div>
+                        <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
+                        {{ nombre }}
+                    </div>
+                    <strong>{{ datos.precio }} €</strong>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div class="resumen">
+                Total: <span id="total-precio">0</span> € | <span id="total-duracion">0</span> min
+            </div>
+
+            <button class="btn-principal" id="btn-ver-fechas" onclick="mostrarCalendario()" disabled style="margin-top:20px;">Continuar a fechas</button>
+
+            <div id="seccion-calendario" style="display:none; margin-top: 30px;">
+                <h3>Elige fecha y hora</h3>
+                <input type="date" id="fecha-reserva" style="width: 100%; padding: 12px; margin-bottom: 20px;">
+                <div id="contenedor-horas" class="grid-horas"></div>
+            </div>
+
+            <div id="seccion-datos" style="display:none; margin-top: 30px;">
+                <h3>Tus datos</h3>
+                <input type="text" id="nombre" placeholder="Nombre completo" style="width: 100%; padding: 12px; margin-bottom: 10px; box-sizing: border-box;">
+                <input type="tel" id="telefono" placeholder="Teléfono" style="width: 100%; padding: 12px; margin-bottom: 20px; box-sizing: border-box;">
+                <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
+            </div>
         </div>
+    </section>
 
-        <button class="btn-continuar" id="btn-continuar" disabled>Continuar a fechas</button>
-    </div>
+    <section id="info" style="background: #eee;">
+        <div class="card">
+            <h2>Sobre nosotros</h2>
+            <p>Bienvenidos a {{ config.nombre_negocio }}. Somos expertos en barbería clásica y moderna.</p>
+            <p>Calidad, estilo y un ambiente relajado para que disfrutes de tu momento.</p>
+        </div>
+    </section>
+
+    <section id="ubicacion">
+        <div class="card">
+            <h2>Ubicación y Horario</h2>
+            <p>📍 Calle Falsa 123, Tu Ciudad.</p>
+            <p><strong>Horarios:</strong></p>
+            <ul>
+                <li>Mañanas: {{ config.horario.apertura_manana }} - {{ config.horario.cierre_manana }}</li>
+                <li>Tardes: {{ config.horario.apertura_tarde }} - {{ config.horario.cierre_tarde }}</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        &copy; 2026 {{ config.nombre_negocio }} - Powered by Tu Agencia
+    </footer>
 
     <script>
-        // Lógica matemática del navegador (Frontend)
+        // --- LÓGICA DEL MENÚ ---
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // --- LÓGICA DE RESERVA (COPIADA DE LA ANTERIOR) ---
         const checkboxes = document.querySelectorAll('.checkbox-servicio');
         const totalPrecioEl = document.getElementById('total-precio');
         const totalDuracionEl = document.getElementById('total-duracion');
-        const btnContinuar = document.getElementById('btn-continuar');
+        const btnVerFechas = document.getElementById('btn-ver-fechas');
 
-        // Función que recalcula todo cuando el cliente marca/desmarca algo
         function actualizarCarrito() {
-            let precio = 0;
-            let duracion = 0;
-            let algunServicioSeleccionado = false;
-
+            let precio = 0; let duracion = 0; let seleccionado = false;
             checkboxes.forEach(box => {
                 if (box.checked) {
                     precio += parseFloat(box.getAttribute('data-precio'));
                     duracion += parseInt(box.getAttribute('data-duracion'));
-                    algunServicioSeleccionado = true;
+                    seleccionado = true;
                 }
             });
-
-            // Actualizamos los textos en la pantalla
             totalPrecioEl.textContent = precio;
             totalDuracionEl.textContent = duracion;
-
-            // Bloqueamos el botón si no ha elegido nada para evitar errores
-            btnContinuar.disabled = !algunServicioSeleccionado;
+            btnVerFechas.disabled = !seleccionado;
         }
 
-        // Le pegamos "la oreja" a todos los checkboxes para que avisen si cambian
-        checkboxes.forEach(box => {
-            box.addEventListener('change', actualizarCarrito);
-        });
-    </script>
+        checkboxes.forEach(box => box.addEventListener('change', actualizarCarrito));
 
+        function mostrarCalendario() {
+            document.getElementById('seccion-calendario').style.display = 'block';
+            btnVerFechas.style.display = 'none';
+        }
+
+        document.getElementById('fecha-reserva').addEventListener('change', async function() {
+            const barbero = document.getElementById('barbero').value;
+            const duracion = totalDuracionEl.textContent;
+            const fecha = this.value;
+            const res = await fetch('/obtener_horas', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({fecha, barbero, duracion})
+            });
+            const data = await res.json();
+            const contenedor = document.getElementById('contenedor-horas');
+            contenedor.innerHTML = '';
+            data.horas.forEach(h => {
+                const btn = document.createElement('button');
+                btn.textContent = h;
+                btn.className = 'btn-hora';
+                btn.onclick = () => seleccionarHora(h);
+                contenedor.appendChild(btn);
+            });
+        });
+
+        let horaSeleccionada = "";
+        function seleccionarHora(h) {
+            horaSeleccionada = h;
+            document.getElementById('seccion-datos').style.display = 'block';
+        }
+
+        async function confirmarReserva() {
+            const serviciosSeleccionados = Array.from(checkboxes).filter(i => i.checked).map(i => i.value).join(", ");
+            const datos = {
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                barbero: document.getElementById('barbero').value,
+                fecha: document.getElementById('fecha-reserva').value,
+                hora_inicio: horaSeleccionada,
+                duracion: totalDuracionEl.textContent,
+                precio: totalPrecioEl.textContent,
+                servicios: serviciosSeleccionados
+            };
+            const res = await fetch('/reservar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(datos)
+            });
+            const result = await res.json();
+            if(result.status === "ok") {
+                alert("¡Cita reservada!");
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>

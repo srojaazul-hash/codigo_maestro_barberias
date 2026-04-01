@@ -136,48 +136,72 @@
     </div>
 
     <div id="modalAgendar" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 75vh; overflow-y: auto; margin: 5vh auto; padding-bottom: 30px;">
             <span class="cerrar" onclick="cerrarModal('modalAgendar')">&times;</span>
             <h3 style="margin-top: 0; color: #28a745;">➕ Nueva Cita</h3>
-            <form action="/admin_reservar" method="POST">
-                <div class="form-group">
-                    <label>Barbero:</label>
-                    <select name="barbero" required>
-                        {% for b in config.barberos %}
-                        <option value="{{ b }}">{{ b }}</option>
-                        {% endfor %}
-                    </select>
+
+            <div class="form-group">
+                <label>Nombre del Cliente:</label>
+                <input type="text" id="admin-nombre" placeholder="Nombre completo" required>
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono (Opcional):</label>
+                <input type="tel" id="admin-telefono" placeholder="Ej: 600123456">
+            </div>
+
+            <div class="form-group">
+                <label>Barbero:</label>
+                <select id="admin-barbero">
+                    {% for b in config.barberos %}
+                    <option value="{{ b }}">{{ b }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Servicios:</label>
+                <div style="background: #111; padding: 10px; border-radius: 4px; max-height: 150px; overflow-y: auto; border: 1px solid #444;">
+                    {% for nombre, detalles in config.servicios.items() %}
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: white; margin-bottom: 8px;">
+                        <input type="checkbox" class="admin-servicio-cb" value="{{ nombre }}" data-duracion="{{ detalles.duracion }}" style="transform: scale(1.2);">
+                        {{ nombre }} ({{ detalles.duracion }} min)
+                    </label>
+                    {% endfor %}
                 </div>
-                <div class="form-group">
-                    <label>Nombre del Cliente:</label>
-                    <input type="text" name="nombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Servicio principal:</label>
-                    <input type="text" name="servicios" placeholder="Ej: Corte y Barba" required>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Fecha:</label>
-                        <input type="date" name="fecha" value="{{ fecha }}" required>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Hora:</label>
-                        <input type="time" name="hora_inicio" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Duración (Minutos):</label>
-                    <input type="number" name="duracion" value="30" required>
-                </div>
-                <button type="submit" style="width: 100%;" class="btn-accion btn-agendar">Guardar Cita</button>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha:</label>
+                <input type="date" id="admin-fecha" value="{{ fecha }}">
+            </div>
+
+            <button type="button" onclick="buscarHorasAdmin()" class="btn-accion" style="width: 100%; background: #007bff; color: white; margin-bottom: 15px;">🔍 Buscar Horas Libres</button>
+
+            <div id="admin-horas-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
+
+            <form action="/admin_reservar" method="POST" id="form-admin-reserva" style="display: none;">
+                <input type="hidden" name="barbero" id="hidden-barbero">
+                <input type="hidden" name="nombre" id="hidden-nombre">
+                <input type="hidden" name="telefono" id="hidden-telefono">
+                <input type="hidden" name="servicios" id="hidden-servicios">
+                <input type="hidden" name="fecha" id="hidden-fecha">
+                <input type="hidden" name="hora_inicio" id="hidden-hora">
+                <input type="hidden" name="duracion" id="hidden-duracion">
+                <button type="submit" style="width: 100%;" class="btn-accion btn-agendar">Confirmar Cita</button>
             </form>
         </div>
     </div>
 
     <script>
         function abrirModal(id) { document.getElementById(id).style.display = 'block'; }
-        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+        function cerrarModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
+            if(id === 'modalAgendar') {
+                document.getElementById('admin-horas-container').innerHTML = '';
+                document.getElementById('form-admin-reserva').style.display = 'none';
+            }
+        }
         
         function actualizarFiltros() {
             const f = document.getElementById('buscador-fecha').value;
@@ -185,11 +209,87 @@
             window.location.href = '/admin?fecha=' + f + '&barbero=' + b;
         }
 
-        // Cerrar modales si se hace clic fuera de ellos
         window.onclick = function(event) {
             if (event.target.className === 'modal') {
                 event.target.style.display = "none";
             }
+        }
+
+        // --- NUEVO MOTOR DE RESERVAS PARA EL ADMIN ---
+        async function buscarHorasAdmin() {
+            const nombre = document.getElementById('admin-nombre').value.trim();
+            if (!nombre) {
+                alert("Por favor, escribe primero el nombre del cliente.");
+                return;
+            }
+
+            const barbero = document.getElementById('admin-barbero').value;
+            const fecha = document.getElementById('admin-fecha').value;
+            const checkboxes = document.querySelectorAll('.admin-servicio-cb:checked');
+
+            if (checkboxes.length === 0) {
+                alert("Selecciona al menos un servicio.");
+                return;
+            }
+
+            let duracionTotal = 0;
+            let nombresServicios = [];
+            checkboxes.forEach(cb => {
+                duracionTotal += parseInt(cb.getAttribute('data-duracion'));
+                nombresServicios.push(cb.value);
+            });
+
+            // Llamamos a tu servidor de Python
+            const response = await fetch('/obtener_horas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ fecha: fecha, servicios: nombresServicios, barbero: barbero, duracion: duracionTotal })
+            });
+
+            const data = await response.json();
+            const contenedor = document.getElementById('admin-horas-container');
+            contenedor.innerHTML = ''; // Limpiar búsquedas anteriores
+
+            if (data.horas && data.horas.length > 0) {
+                data.horas.forEach(hora => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = hora;
+                    btn.style.cssText = 'padding: 10px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; flex: 1; min-width: 60px; font-size: 16px;';
+                    btn.onclick = (e) => seleccionarHoraAdmin(e, hora, barbero, fecha, nombresServicios.join(', '), duracionTotal, nombre);
+                    contenedor.appendChild(btn);
+                });
+            } else {
+                contenedor.innerHTML = '<p style="color: #ff4444; width: 100%; text-align: center; margin: 0;">No hay horas libres para esta duración.</p>';
+            }
+
+            document.getElementById('form-admin-reserva').style.display = 'none';
+        }
+
+        function seleccionarHoraAdmin(evento, hora, barbero, fecha, serviciosStr, duracion, nombre) {
+            // Pintar de verde el botón pulsado
+            const botones = document.getElementById('admin-horas-container').querySelectorAll('button');
+            botones.forEach(b => { b.style.background = '#444'; b.style.borderColor = '#666'; });
+            evento.target.style.background = '#28a745';
+            evento.target.style.borderColor = '#28a745';
+
+            // Rellenar los datos ocultos para Python
+            document.getElementById('hidden-barbero').value = barbero;
+            document.getElementById('hidden-nombre').value = nombre;
+           document.getElementById('hidden-telefono').value = document.getElementById('admin-telefono').value;
+            document.getElementById('hidden-fecha').value = fecha;
+            document.getElementById('hidden-hora').value = hora;
+            document.getElementById('hidden-duracion').value = duracion;
+            document.getElementById('hidden-servicios').value = serviciosStr;
+
+            // Mostrar el botón final y hacer scroll automático hacia él
+            const formReserva = document.getElementById('form-admin-reserva');
+            formReserva.style.display = 'block';
+            
+            // Le decimos al modal que baje hasta abajo del todo de forma suave
+            setTimeout(() => {
+                formReserva.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
         }
     </script>
 

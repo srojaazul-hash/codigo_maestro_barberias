@@ -188,11 +188,16 @@ def cancelar_cita(id):
 @app.route('/admin_reservar', methods=['POST'])
 @login_required
 def admin_reservar():
-    nombre = request.form.get('nombre') # Aquí puede poner "BLOQUEO" o "VACACIONES"
+    nombre = request.form.get('nombre')
+    telefono = request.form.get('telefono', '')
+    if not telefono:
+        telefono = "ADMIN"
     fecha = request.form.get('fecha')
     hora_inicio = request.form.get('hora_inicio')
-    duracion = int(request.form.get('duracion'))
+    duracion = int(request.form.get('duracion', 30))
     barbero = request.form.get('barbero')
+    # Capturamos los servicios reales, si no hay, ponemos "Manual"
+    servicios = request.form.get('servicios', 'Reserva Manual') 
     
     inicio_dt = datetime.strptime(hora_inicio, "%H:%M")
     fin_dt = inicio_dt + timedelta(minutes=duracion)
@@ -203,7 +208,7 @@ def admin_reservar():
     cursor.execute("""
         INSERT INTO citas (cliente_nombre, cliente_telefono, cliente_email, barbero, fecha, hora_inicio, hora_fin, servicios_json, precio_total)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (nombre, "ADMIN_BLOCK", "", barbero, fecha, hora_inicio, hora_fin_str, "Bloqueo manual", "0"))
+    """, (nombre, telefono, "", barbero, fecha, hora_inicio, hora_fin_str, servicios, "0"))
     conn.commit()
     conn.close()
     

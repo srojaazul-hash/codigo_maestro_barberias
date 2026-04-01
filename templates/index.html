@@ -179,8 +179,21 @@
             </div>
 
             <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                <h3 style="margin-top:0;">Elige fecha y hora</h3>
-                <input type="date" id="fecha-reserva">
+               <h3 style="margin-top:0;">Elige fecha y hora</h3>
+                
+                <div id="calendario-cliente" style="background: #f9f9f9; border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
+                        <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
+                        <button type="button" onclick="cambiarMesCliente(1)" style="background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #aaa; font-size: 14px;">
+                        <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                    </div>
+                    <div id="dias-calendario-cliente" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
+                </div>
+                
+                <input type="hidden" id="fecha-reserva">
                 <div id="contenedor-horas" class="grid-horas"></div>
             </div>
 
@@ -251,12 +264,110 @@
             setTimeout(() => {
                 seccionCal.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
+            
+            // Cargamos los colores al abrir
+            cargarCalendarioCliente();
         }
 
-        document.getElementById('fecha-reserva').addEventListener('change', async function() {
-            const barbero = document.getElementById('barbero').value;
+        // --- MOTOR DEL CALENDARIO CLIENTE ---
+        let fechaActualCalendarioCliente = new Date();
+        
+        async function cargarCalendarioCliente() {
+            const anio = fechaActualCalendarioCliente.getFullYear();
+            const mes = fechaActualCalendarioCliente.getMonth() + 1;
+            
+            const barberoSelect = document.getElementById('barbero');
+            const barbero = barberoSelect ? barberoSelect.value : 'Todos';
+
+            const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            document.getElementById('mes-año-cliente').innerText = `${nombresMeses[mes - 1]} ${anio}`;
+
+            // Consultar colores al servidor
+            const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
+            const datosColores = await response.json();
+
+            const contenedorDias = document.getElementById('dias-calendario-cliente');
+            contenedorDias.innerHTML = '';
+
+            const primerDiaMes = new Date(anio, mes - 1, 1).getDay();
+            const diasTotalesMes = new Date(anio, mes, 0).getDate();
+            let huecosVacios = primerDiaMes === 0 ? 6 : primerDiaMes - 1;
+
+            for (let i = 0; i < huecosVacios; i++) {
+                contenedorDias.innerHTML += `<div></div>`;
+            }
+
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const fechaSeleccionada = document.getElementById('fecha-reserva').value;
+
+            for (let dia = 1; dia <= diasTotalesMes; dia++) {
+                const diaStr = String(dia).padStart(2, '0');
+                const mesStr = String(mes).padStart(2, '0');
+                const fechaIteracion = `${anio}-${mesStr}-${diaStr}`;
+                const fechaIteracionObj = new Date(anio, mes - 1, dia);
+                
+                let colorLogico = datosColores[fechaIteracion] || 'verde';
+                
+                // Colores pastel para la app del cliente
+                let bgCSS = '#d4edda'; // Verde claro (Libre)
+                let colorTexto = '#155724';
+                let cursor = 'pointer';
+                let clickEvent = `seleccionarFechaCliente('${fechaIteracion}', '${colorLogico}')`;
+
+                // Bloqueamos días pasados
+                if (fechaIteracionObj < hoy) {
+                    bgCSS = '#e9ecef'; // Gris
+                    colorTexto = '#adb5bd';
+                    cursor = 'not-allowed';
+                    clickEvent = '';
+                } else if (colorLogico === 'amarillo') {
+                    bgCSS = '#fff3cd'; // Amarillo claro
+                    colorTexto = '#856404';
+                } else if (colorLogico === 'rojo') {
+                    bgCSS = '#f8d7da'; // Rojo claro
+                    colorTexto = '#721c24';
+                    cursor = 'not-allowed';
+                    clickEvent = `alert('Este día está completo. Por favor, elige otra fecha.')`;
+                }
+
+                // Resaltamos el día si el cliente lo ha tocado
+                let borde = fechaSeleccionada === fechaIteracion ? `2px solid var(--color-marca)` : '1px solid transparent';
+                if(fechaSeleccionada === fechaIteracion) bgCSS = `var(--color-marca)`, colorTexto = 'white';
+
+                contenedorDias.innerHTML += `
+                    <div onclick="${clickEvent}"
+                         style="background: ${bgCSS}; color: ${colorTexto}; padding: 10px 0; border-radius: 8px; cursor: ${cursor}; border: ${borde}; font-weight: 500; font-size: 15px; transition: 0.2s;">
+                        ${dia}
+                    </div>
+                `;
+            }
+        }
+
+        function cambiarMesCliente(salto) {
+            fechaActualCalendarioCliente.setMonth(fechaActualCalendarioCliente.getMonth() + salto);
+            cargarCalendarioCliente();
+        }
+
+        // Si el cliente cambia de barbero, los colores del calendario se actualizan solos
+        const barberoSelect = document.getElementById('barbero');
+        if (barberoSelect) {
+            barberoSelect.addEventListener('change', () => {
+                if (document.getElementById('seccion-calendario').style.display === 'block') {
+                    cargarCalendarioCliente();
+                    document.getElementById('contenedor-horas').innerHTML = ''; 
+                    document.getElementById('fecha-reserva').value = '';
+                }
+            });
+        }
+
+        async function seleccionarFechaCliente(fecha, color) {
+            document.getElementById('fecha-reserva').value = fecha;
+            cargarCalendarioCliente(); // Recargar para resaltar el botón
+
+            const barbero = document.getElementById('barbero') ? document.getElementById('barbero').value : 'Todos';
             const duracion = totalDuracionEl.textContent;
-            const fecha = this.value;
+            
             const res = await fetch('/obtener_horas', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -278,7 +389,7 @@
                 btn.onclick = function() { seleccionarHora(h, this); };
                 contenedor.appendChild(btn);
             });
-        });
+        }
 
         let horaSeleccionada = "";
         

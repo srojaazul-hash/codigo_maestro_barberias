@@ -215,7 +215,6 @@ def admin_reservar():
     return redirect(url_for('admin', fecha=fecha))
 
 @app.route('/api/estado_mes')
-@login_required
 def estado_mes():
     import calendar
     anio = int(request.args.get('anio'))

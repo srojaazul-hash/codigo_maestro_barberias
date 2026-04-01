@@ -214,6 +214,70 @@ def admin_reservar():
     
     return redirect(url_for('admin', fecha=fecha))
 
+@app.route('/api/estado_mes')
+@login_required
+def estado_mes():
+    import calendar
+    anio = int(request.args.get('anio'))
+    mes = int(request.args.get('mes'))
+    barbero_seleccionado = request.args.get('barbero', 'Todos')
+
+    # 1. Calculamos los minutos totales de trabajo de un día normal
+    fmt = '%H:%M'
+    ap_m = datetime.strptime(CONFIGURACION['horario']['apertura_manana'], fmt)
+    ci_m = datetime.strptime(CONFIGURACION['horario']['cierre_manana'], fmt)
+    ap_t = datetime.strptime(CONFIGURACION['horario']['apertura_tarde'], fmt)
+    ci_t = datetime.strptime(CONFIGURACION['horario']['cierre_tarde'], fmt)
+
+    minutos_jornada = ((ci_m - ap_m).seconds + (ci_t - ap_t).seconds) / 60
+    if barbero_seleccionado == 'Todos':
+        minutos_jornada *= len(CONFIGURACION['barberos'])
+
+    # 2. Buscamos todas las citas de ese mes de golpe
+    mes_str = f"{anio}-{mes:02d}-"
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    if barbero_seleccionado == 'Todos':
+        cursor.execute("SELECT fecha, hora_inicio, hora_fin FROM citas WHERE fecha LIKE ?", (f"{mes_str}%",))
+    else:
+        cursor.execute("SELECT fecha, hora_inicio, hora_fin FROM citas WHERE fecha LIKE ? AND barbero = ?", (f"{mes_str}%", barbero_seleccionado))
+    citas_mes = cursor.fetchall()
+    conn.close()
+
+    # 3. Sumamos los minutos ocupados de cada día
+    ocupacion_por_dia = {}
+    for cita in citas_mes:
+        fecha_cita = cita['fecha']
+        try:
+            h_in = datetime.strptime(cita['hora_inicio'], fmt)
+            h_out = datetime.strptime(cita['hora_fin'], fmt)
+            minutos_ocupados = (h_out - h_in).seconds / 60
+            
+            if fecha_cita not in ocupacion_por_dia:
+                ocupacion_por_dia[fecha_cita] = 0
+            ocupacion_por_dia[fecha_cita] += minutos_ocupados
+        except:
+            pass 
+
+    # 4. Asignamos el color matemático
+    _, num_dias = calendar.monthrange(anio, mes)
+    resultado = {}
+
+    for dia in range(1, num_dias + 1):
+        fecha_str = f"{anio}-{mes:02d}-{dia:02d}"
+        min_ocupados = ocupacion_por_dia.get(fecha_str, 0)
+        
+        porcentaje_libre = ((minutos_jornada - min_ocupados) / minutos_jornada) * 100
+
+        if porcentaje_libre > 50:
+            resultado[fecha_str] = "verde"
+        elif porcentaje_libre > 0:
+            resultado[fecha_str] = "amarillo"
+        else:
+            resultado[fecha_str] = "rojo"
+
+    return jsonify(resultado)
+
 @app.route('/admin_bloquear', methods=['POST'])
 @login_required
 def admin_bloquear():
@@ -248,6 +312,7 @@ def admin_bloquear():
 
     # Devolvemos al admin al día en el que empezó el bloqueo
     return redirect(url_for('admin', fecha=fecha_inicio_str))
+
 # --- ARRANQUE DEL SERVIDOR (SIEMPRE AL FINAL) ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

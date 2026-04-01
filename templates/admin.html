@@ -83,10 +83,20 @@
         </div>
     </div>
 
-    <div class="calendario-grande">
-        <h3 style="margin: 0; color: #ccc;">📅 Calendario Mensual (En construcción)</h3>
-        <p style="margin: 5px 0 0 0; font-size: 14px; color: #888;">Aquí programaremos la cuadrícula visual y los colores de ocupación.</p>
-        <input type="date" id="buscador-fecha" value="{{ fecha }}" onchange="actualizarFiltros()" style="margin-top: 10px; padding: 5px; font-size: 16px; background: #111; color: white; border: none; border-radius: 4px;">
+    <div class="calendario-grande" style="background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; height: auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <button type="button" onclick="cambiarMes(-1)" style="background: #444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">&lt; Mes</button>
+            <h3 id="mes-año-texto" style="margin: 0; color: {{ config.color_principal }}; text-transform: uppercase;">Cargando...</h3>
+            <button type="button" onclick="cambiarMes(1)" style="background: #444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Mes &gt;</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #aaa; font-size: 14px;">
+            <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
+        </div>
+        
+        <div id="dias-calendario" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+            </div>
     </div>
 
     <div id="modalBloquear" class="modal">
@@ -203,11 +213,80 @@
             }
         }
         
+        // Si cambiamos de barbero, recargamos la página manteniendo el día actual
         function actualizarFiltros() {
-            const f = document.getElementById('buscador-fecha').value;
             const b = document.getElementById('buscador-barbero').value;
-            window.location.href = '/admin?fecha=' + f + '&barbero=' + b;
+            window.location.href = '/admin?fecha={{ fecha }}&barbero=' + b;
         }
+
+        // --- MOTOR DEL CALENDARIO DINÁMICO ---
+        let fechaActualCalendario = new Date("{{ fecha }}");
+        
+        async function cargarCalendario() {
+            const anio = fechaActualCalendario.getFullYear();
+            const mes = fechaActualCalendario.getMonth() + 1;
+            const barbero = document.getElementById('buscador-barbero').value;
+
+            const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            document.getElementById('mes-año-texto').innerText = `${nombresMeses[mes - 1]} ${anio}`;
+
+            // Pedimos a Python los colores del mes
+            const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
+            const datosColores = await response.json();
+
+            const contenedorDias = document.getElementById('dias-calendario');
+            contenedorDias.innerHTML = '';
+
+            const primerDiaMes = new Date(anio, mes - 1, 1).getDay();
+            const diasTotalesMes = new Date(anio, mes, 0).getDate();
+            
+            // Ajustar para que Lunes sea el primer día (getDay() da 0 para Domingo)
+            let huecosVacios = primerDiaMes === 0 ? 6 : primerDiaMes - 1;
+
+            // Rellenar huecos vacíos antes del día 1
+            for (let i = 0; i < huecosVacios; i++) {
+                contenedorDias.innerHTML += `<div style="padding: 10px 0;"></div>`;
+            }
+
+            const fechaSeleccionadaHoy = "{{ fecha }}";
+
+            // Pintar los días
+            for (let dia = 1; dia <= diasTotalesMes; dia++) {
+                const diaStr = String(dia).padStart(2, '0');
+                const mesStr = String(mes).padStart(2, '0');
+                const fechaIteracion = `${anio}-${mesStr}-${diaStr}`;
+                
+                const colorLogico = datosColores[fechaIteracion] || 'verde';
+                
+                let bgCSS = '#28a745'; // Verde
+                let textoCSS = 'white';
+                
+                if (colorLogico === 'amarillo') {
+                    bgCSS = '#ffc107'; 
+                    textoCSS = 'black';
+                } else if (colorLogico === 'rojo') {
+                    bgCSS = '#dc3545';
+                }
+
+                // Recuadro blanco para saber en qué día estamos clickados
+                let bordeCSS = fechaIteracion === fechaSeleccionadaHoy ? '3px solid white' : '1px solid #444';
+
+                contenedorDias.innerHTML += `
+                    <div onclick="window.location.href='/admin?fecha=${fechaIteracion}&barbero=${barbero}'"
+                         style="background: ${bgCSS}; color: ${textoCSS}; padding: 10px 0; border-radius: 4px; cursor: pointer; border: ${bordeCSS}; font-weight: bold; text-align: center; opacity: 0.9;">
+                        ${dia}
+                    </div>
+                `;
+            }
+        }
+
+        function cambiarMes(salto) {
+            fechaActualCalendario.setMonth(fechaActualCalendario.getMonth() + salto);
+            cargarCalendario();
+        }
+
+        // Arrancar el calendario al abrir la página
+        document.addEventListener("DOMContentLoaded", cargarCalendario);
 
         window.onclick = function(event) {
             if (event.target.className === 'modal') {

@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="{{ config.color_principal }}">
+    <meta name="theme-color" content="#050505">
+    <link rel="icon" type="image/png" href="/static/logo_oro.png">
+    <link rel="apple-touch-icon" href="/static/logo_oro.png">
 
     <title>{{ config.nombre_negocio }}</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
         :root { 
-            --color-marca: {{ config.color_principal }}; 
-            --bg-app: #fdfdfd;
-            --card-bg: #ffffff;
-            --texto-principal: #2d3436;
-            --texto-secundario: #636e72;
+            --color-marca: #c4a161; 
+            --bg-app: #050505; 
+            --card-bg: #1a1a1a; 
+            --texto-principal: #f7f1e1; 
+            --texto-secundario: #a69c8a; 
         }
 
         body { 
@@ -28,23 +30,23 @@
 
         /* --- NAVEGACIÓN --- */
         nav { 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(10px); 
-            padding: 15px 25px; 
+            background: rgba(10, 10, 10, 0.85); 
+            backdrop-filter: blur(15px); 
+            padding: 10px 25px; 
             position: sticky; top: 0; 
             display: flex; justify-content: space-between; align-items: center; 
-            z-index: 1000; border-bottom: 1px solid #eee;
+            z-index: 1000; border-bottom: 1px solid #2a2a2a;
         }
 
-        .menu-hamburguesa { cursor: pointer; font-size: 24px; display: block; }
+        .menu-hamburguesa { cursor: pointer; font-size: 24px; display: block; color: var(--color-marca); }
 
         .nav-links { 
             position: absolute; top: 100%; left: 0; width: 100%; 
-            background: white; display: none; flex-direction: column; 
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            background: #151515; display: none; flex-direction: column; 
+            box-shadow: 0 15px 25px rgba(0,0,0,0.6);
         }
         .nav-links.active { display: flex; }
-        .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #f8f8f8; font-weight: 500; }
+        .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #2a2a2a; font-weight: 500; }
 
         /* --- TARJETAS Y SECCIONES --- */
         section { padding: 30px 20px; max-width: 600px; margin: 0 auto; } 
@@ -54,39 +56,35 @@
             background: var(--card-bg); 
             padding: 25px; border-radius: 20px; 
             margin-bottom: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            border: 1px solid #f1f1f1;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 1px solid #2a2a2a;
         }
 
-        h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-top: 0; }
+        h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-top: 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
 
         .servicio-item { 
             display: flex; justify-content: space-between; align-items: center;
             padding: 18px; margin-bottom: 12px;
-            border-radius: 15px; background: #fafafa;
-            transition: all 0.3s ease; border: 1px solid transparent; cursor: pointer;
+            border-radius: 15px; background: #222;
+            transition: all 0.3s ease; border: 1px solid #333; cursor: pointer;
+            color: var(--texto-principal);
         }
 
         .servicio-item:has(input:checked) {
             border-color: var(--color-marca);
-            background: #f0f8ff; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: rgba(196, 161, 97, 0.05); 
+            box-shadow: 0 0 15px rgba(196, 161, 97, 0.15);
         }
 
         .servicio-item input { margin-right: 15px; accent-color: var(--color-marca); transform: scale(1.2); }
 
-        /* --- PREVENIR ZOOM FEOS EN MÓVIL --- */
+        /* --- INPUTS --- */
         input, select, textarea {
             font-size: 16px !important; 
             width: 100%; padding: 15px; margin-bottom: 20px; 
-            border-radius: 12px; border: 1px solid #ddd; 
+            border-radius: 12px; border: 1px solid #333; 
             font-family: 'Poppins', sans-serif; box-sizing: border-box;
-            background-color: #f9f9f9;
-        }
-
-        input[type="date"] {
-            appearance: none;
-            -webkit-appearance: none;
+            background-color: #252525; 
             color: var(--texto-principal);
         }
 
@@ -94,48 +92,52 @@
         .resumen-flotante {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 450px;
-            background: #2d3436; color: white;
+            background: #111; color: var(--texto-principal);
             padding: 15px 25px; border-radius: 50px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            border: 1px solid #333;
             z-index: 1001;
         }
 
         .btn-continuar {
-            background: var(--color-marca); color: white;
+            background: var(--color-marca); color: #000;
             border: none; padding: 12px 25px; border-radius: 30px;
             font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 16px;
         }
-        .btn-continuar:disabled { background: #555; opacity: 0.5; }
+        .btn-continuar:disabled { background: #333; color: #666; opacity: 1; }
         
         .btn-principal { 
-            width: 100%; padding: 18px; background: var(--color-marca); color: white; 
-            border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 5px;
+            width: 100%; padding: 18px; background: var(--color-marca); color: #000; 
+            border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;
         }
 
         /* --- CALENDARIO Y HORAS --- */
         .grid-horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
         
         .btn-hora { 
-            padding: 15px 5px; border: 1px solid #ddd; background: white; 
+            padding: 15px 5px; border: 1px solid #333; background: #222; 
             border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s;
             font-size: 16px; color: var(--texto-principal);
         }
         
         .btn-hora.seleccionado { 
             border-color: var(--color-marca); 
-            color: white; 
+            color: #000; 
             background: var(--color-marca); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 15px rgba(196, 161, 97, 0.3);
         }
         
-        footer { text-align: center; padding: 20px; font-size: 14px; color: #888; }
+        footer { text-align: center; padding: 20px; font-size: 14px; color: #555; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div style="font-weight: bold; font-size: 1.2em;">{{ config.nombre_negocio }}</div>
+        <div style="display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.2em; color: var(--color-marca);">
+            <img src="/static/logo_oro.png" alt="Logo" style="height: 35px; width: auto;">
+            {{ config.nombre_negocio }}
+        </div>
         <div class="menu-hamburguesa" onclick="toggleMenu()">☰</div>
         <div class="nav-links" id="navLinks">
             <a href="#servicios" onclick="toggleMenu()">Reserva tu cita</a>
@@ -149,7 +151,7 @@
             <h2>Reserva tu cita</h2>
             
             {% if config.activar_eleccion_barbero %}
-            <label style="font-weight: 600; margin-bottom: 10px; display: block;">Selecciona Barbero:</label>
+            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: var(--texto-secundario);">Selecciona Barbero:</label>
             <select id="barbero">
                 {% for barbero in config.barberos %}
                 <option value="{{ barbero }}">{{ barbero }}</option>
@@ -157,7 +159,7 @@
             </select>
             {% endif %}
 
-            <label style="font-weight: 600; margin-bottom: 10px; display: block;">Tus servicios:</label>
+            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: var(--texto-secundario);">Tus servicios:</label>
             <div id="lista-servicios">
                 {% for nombre, datos in config.servicios.items() %}
                 <label class="servicio-item">
@@ -165,29 +167,29 @@
                         <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
                         {{ nombre }} <small style="color: #888;">({{ datos.duracion }} min)</small>
                     </div>
-                    <strong>{{ datos.precio }} €</strong>
+                    <strong style="color: var(--color-marca);">{{ datos.precio }} €</strong>
                 </label>
                 {% endfor %}
             </div>
 
             <div class="resumen-flotante" id="barra-pago">
                 <div>
-                    <span id="total-precio" style="font-size: 1.4em; font-weight: 600;">0</span>€
+                    <span id="total-precio" style="font-size: 1.4em; font-weight: 600; color: var(--color-marca);">0</span><span style="color: var(--color-marca);">€</span>
                     <small style="opacity: 0.7; margin-left: 5px;">(<span id="total-duracion">0</span> min)</small>
                 </div>
                 <button class="btn-continuar" id="btn-ver-fechas" onclick="mostrarCalendario()" disabled>Reservar</button>
             </div>
 
-            <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-               <h3 style="margin-top:0;">Elige fecha y hora</h3>
+            <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
+                <h3 style="margin-top:0; color: var(--texto-principal);">Elige fecha y hora</h3>
                 
-                <div id="calendario-cliente" style="background: #f9f9f9; border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+                <div id="calendario-cliente" style="background: #151515; border: 1px solid #2a2a2a; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
+                        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
                         <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
-                        <button type="button" onclick="cambiarMesCliente(1)" style="background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
+                        <button type="button" onclick="cambiarMesCliente(1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #aaa; font-size: 14px;">
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #888; font-size: 14px;">
                         <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
                     </div>
                     <div id="dias-calendario-cliente" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
@@ -197,8 +199,8 @@
                 <div id="contenedor-horas" class="grid-horas"></div>
             </div>
 
-            <div id="seccion-datos" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                <h3 style="margin-top:0;">Tus datos</h3>
+            <div id="seccion-datos" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
+                <h3 style="margin-top:0; color: var(--texto-principal);">Tus datos</h3>
                 <input type="text" id="nombre" placeholder="Nombre completo">
                 <input type="tel" id="telefono" placeholder="Teléfono">
                 <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
@@ -265,7 +267,6 @@
                 seccionCal.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
             
-            // Cargamos los colores al abrir
             cargarCalendarioCliente();
         }
 
@@ -282,7 +283,6 @@
             const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
             document.getElementById('mes-año-cliente').innerText = `${nombresMeses[mes - 1]} ${anio}`;
 
-            // Consultar colores al servidor
             const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
             const datosColores = await response.json();
 
@@ -309,35 +309,37 @@
                 
                 let colorLogico = datosColores[fechaIteracion] || 'verde';
                 
-                // Colores pastel para la app del cliente
-                let bgCSS = '#d4edda'; // Verde claro (Libre)
-                let colorTexto = '#155724';
+                let bgCSS = '#222'; 
+                let colorTexto = 'var(--texto-principal)';
                 let cursor = 'pointer';
                 let clickEvent = `seleccionarFechaCliente('${fechaIteracion}', '${colorLogico}')`;
+                let opacity = '1';
 
-                // Bloqueamos días pasados
                 if (fechaIteracionObj < hoy) {
-                    bgCSS = '#e9ecef'; // Gris
-                    colorTexto = '#adb5bd';
+                    bgCSS = '#111'; 
+                    colorTexto = '#555';
                     cursor = 'not-allowed';
                     clickEvent = '';
                 } else if (colorLogico === 'amarillo') {
-                    bgCSS = '#fff3cd'; // Amarillo claro
-                    colorTexto = '#856404';
+                    bgCSS = 'rgba(196, 161, 97, 0.15)'; 
+                    colorTexto = 'var(--color-marca)';
                 } else if (colorLogico === 'rojo') {
-                    bgCSS = '#f8d7da'; // Rojo claro
-                    colorTexto = '#721c24';
+                    bgCSS = '#2a0b0b'; 
+                    colorTexto = '#dc3545';
                     cursor = 'not-allowed';
                     clickEvent = `alert('Este día está completo. Por favor, elige otra fecha.')`;
+                    opacity = '0.6';
                 }
 
-                // Resaltamos el día si el cliente lo ha tocado
                 let borde = fechaSeleccionada === fechaIteracion ? `2px solid var(--color-marca)` : '1px solid transparent';
-                if(fechaSeleccionada === fechaIteracion) bgCSS = `var(--color-marca)`, colorTexto = 'white';
+                if(fechaSeleccionada === fechaIteracion) {
+                    bgCSS = `var(--color-marca)`; 
+                    colorTexto = '#000';
+                }
 
                 contenedorDias.innerHTML += `
                     <div onclick="${clickEvent}"
-                         style="background: ${bgCSS}; color: ${colorTexto}; padding: 10px 0; border-radius: 8px; cursor: ${cursor}; border: ${borde}; font-weight: 500; font-size: 15px; transition: 0.2s;">
+                         style="background: ${bgCSS}; color: ${colorTexto}; padding: 10px 0; border-radius: 8px; cursor: ${cursor}; border: ${borde}; font-weight: 500; font-size: 15px; transition: 0.2s; opacity: ${opacity};">
                         ${dia}
                     </div>
                 `;
@@ -349,7 +351,6 @@
             cargarCalendarioCliente();
         }
 
-        // Si el cliente cambia de barbero, los colores del calendario se actualizan solos
         const barberoSelect = document.getElementById('barbero');
         if (barberoSelect) {
             barberoSelect.addEventListener('change', () => {
@@ -363,7 +364,7 @@
 
         async function seleccionarFechaCliente(fecha, color) {
             document.getElementById('fecha-reserva').value = fecha;
-            cargarCalendarioCliente(); // Recargar para resaltar el botón
+            cargarCalendarioCliente(); 
 
             const barbero = document.getElementById('barbero') ? document.getElementById('barbero').value : 'Todos';
             const duracion = totalDuracionEl.textContent;
@@ -378,7 +379,7 @@
             contenedor.innerHTML = '';
             
             if (data.horas.length === 0) {
-                contenedor.innerHTML = '<p style="grid-column: span 3; text-align: center; color: #e74c3c;">No hay huecos disponibles para esta fecha.</p>';
+                contenedor.innerHTML = '<p style="grid-column: span 3; text-align: center; color: #dc3545;">No hay huecos disponibles para esta fecha.</p>';
                 return;
             }
 
@@ -421,9 +422,9 @@
             };
             
             if(!datos.nombre || !datos.telefono) {
-    alert("Por favor, rellena tu nombre y teléfono.");
-    return;
-}
+                alert("Por favor, rellena tu nombre y teléfono.");
+                return;
+            }
 
             const res = await fetch('/reservar', {
                 method: 'POST',
@@ -446,11 +447,10 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
                 `;
                 alert(ticket);
                 
-                // --- LÓGICA DE NOTIFICACIONES PWA ---
                 if (Notification.permission === 'granted') {
                     new Notification("¡Reserva Confirmada!", {
                         body: "Tu cita en {{ config.nombre_negocio }} ha sido registrada.",
-                        icon: "/static/icon.png"
+                       icon: "/static/logo_oro.png"
                     });
                 }
                 
@@ -460,7 +460,6 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
             }
         }
 
-        // --- REGISTRO DEL SERVICE WORKER Y PERMISO PWA ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/static/sw.js')
             .then(() => console.log("App lista para instalar"));

@@ -10,7 +10,7 @@ CONFIGURACION = {
         "card_bg": "#1a1a1a",
         "texto_principal": "#f7f1e1",
         "texto_secundario": "#a69c8a",
-        "logo_url": "/static/logo_oro.png"
+        "logo_url": "/static/cilindro_barberia.png"
     },
 
     # 3. BLOQUE SERVICIOS (Asegúrate de que sigue existiendo)

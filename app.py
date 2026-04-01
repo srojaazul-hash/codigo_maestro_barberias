@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from functools import wraps
 import urllib.request
 import urllib.parse
+from flask import jsonify # Asegúrate de que jsonify esté importado arriba
 
 load_dotenv() # Carga las variables del archivo .env
 app = Flask(__name__)
@@ -87,6 +88,29 @@ def login_required(f):
     return decorated_function
 
 # --- RUTAS DE AUTENTICACIÓN ---
+@app.route('/manifest.json')
+def manifest():
+    return jsonify({
+        "name": CONFIGURACION["nombre_negocio"],
+        "short_name": CONFIGURACION["nombre_negocio"],
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": CONFIGURACION["estetica"]["bg_app"],
+        "theme_color": CONFIGURACION["estetica"]["bg_app"],
+        "icons": [
+            {
+                "src": CONFIGURACION["estetica"]["logo_url"],
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": CONFIGURACION["estetica"]["logo_url"],
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    })
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

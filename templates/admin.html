@@ -2,110 +2,88 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Control - {{ config.nombre_negocio }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="{{ config.estetica.bg_app }}">
+    <link rel="icon" type="image/png" href="{{ config.estetica.logo_url }}">
+    <link rel="apple-touch-icon" href="{{ config.estetica.logo_url }}">
+    
+    <title>Admin - {{ config.nombre_negocio }}</title>
+
     <style>
-        body { font-family: sans-serif; background: #222; color: white; padding: 20px; }
-        
-        /* --- NUEVA ESTRUCTURA SUPERIOR (2 FILAS PARA MÓVIL) --- */
-        .top-controls { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            margin-bottom: 20px; 
-            background: #333; 
-            padding: 15px; 
-            border-radius: 8px; 
+        :root { 
+            --color-marca: {{ config.estetica.color_marca }}; 
+            --bg-app: {{ config.estetica.bg_app }}; 
+            --card-bg: {{ config.estetica.card_bg }}; 
+            --texto-principal: {{ config.estetica.texto_principal }}; 
+            --texto-secundario: {{ config.estetica.texto_secundario }}; 
+            --rojo: #dc3545;
+            --verde: #28a745;
         }
-        .filtro-barbero { 
-            width: 100%; 
-            padding: 12px; 
-            font-size: 16px; 
-            border-radius: 6px; 
-            border: 1px solid #555; 
-            background: #222; 
-            color: white; 
-            text-align: center; 
-            font-weight: bold; 
-        }
-        .botones-accion-container { 
-            display: flex; 
-            justify-content: space-between; 
-            gap: 10px; 
-            width: 100%; 
-        }
-        .btn-accion { 
-            flex: 1; /* Ambos botones ocupan el 50% exacto */
-            padding: 12px; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 15px; 
-            text-align: center; 
-        }
-        .btn-bloquear { background: #cc0000; color: white; }
-        .btn-agendar { background: #28a745; color: white; }
-        
-        /* --- CALENDARIO PLACEHOLDER --- */
-        .calendario-grande { background: #333; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 2px dashed #555; height: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        
-        /* --- MODALES (VENTANAS EMERGENTES) --- */
-        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
-        .modal-content { background-color: #2a2a2a; margin: 10% auto; padding: 20px; border: 1px solid #555; width: 90%; max-width: 400px; border-radius: 8px; }
-        .cerrar { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; margin-top: -10px; }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 5px; color: #ccc; font-size: 14px; }
-        .form-group input, .form-group select { padding: 10px; font-size: 16px; border-radius: 4px; border: none; background: #111; color: white; }
-        
-        /* --- CITAS EXISTENTES --- */
-        .cita-card { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid {{ config.color_principal }}; }
-        .hora { font-size: 1.5em; font-weight: bold; color: {{ config.color_principal }}; }
-        .cliente { font-size: 1.2em; margin: 5px 0; }
-        .servicios { color: #aaa; font-style: italic; }
+        body { padding: 15px; } /* Ajuste extra solo para admin */
     </style>
+    <link rel="stylesheet" href="/static/estilos.css">
 </head>
 <body>
 
-    <h2 style="text-align: center; color: {{ config.color_principal }}; margin-top: 0;">{{ config.nombre_negocio }}</h2>
+    <div class="cabecera-agenda">
+        <h2><img src="{{ config.estetica.logo_url }}" alt="Logo" style="height: 35px; width: auto;"> Agenda</h2>
+        <input type="date" id="buscador-fecha" value="{{ fecha }}" onchange="actualizarFiltros()" style="background: var(--card-bg); color: var(--color-marca); border: 1px solid #333; padding: 8px 12px; border-radius: 8px; font-family: 'Poppins'; width: auto; margin-bottom: 0;">
+    </div>
 
-    <div class="top-controls">
-        <select id="buscador-barbero" class="filtro-barbero" onchange="actualizarFiltros()">
-            <option value="Todos" {% if barbero_seleccionado == 'Todos' %}selected{% endif %}>✂️ Todos los Barberos</option>
+    <div class="controles-boceto">
+        <button class="btn-accion btn-bloquear" onclick="abrirModal('modalBloquear')">Bloquear</button>
+        
+        <select id="buscador-barbero" class="filtro-barbero" onchange="actualizarFiltros()" style="margin-bottom: 0;">
+            <option value="Todos" {% if barbero_seleccionado == 'Todos' %}selected{% endif %}>Todos</option>
             {% for b in config.barberos %}
             <option value="{{ b }}" {% if barbero_seleccionado == b %}selected{% endif %}>{{ b }}</option>
             {% endfor %}
         </select>
         
-        <div class="botones-accion-container">
-            <button class="btn-accion btn-bloquear" onclick="abrirModal('modalBloquear')">🔒 Bloquear</button>
-            <button class="btn-accion btn-agendar" onclick="abrirModal('modalAgendar')">➕ Agendar</button>
-        </div>
+        <button class="btn-accion btn-agendar" onclick="abrirModal('modalAgendar')">Agendar</button>
     </div>
 
-    <div class="calendario-grande" style="background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; height: auto;">
-        
+    <div class="calendario-grande">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <button type="button" onclick="cambiarMes(-1)" style="background: #444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">&lt; Mes</button>
-            <h3 id="mes-año-texto" style="margin: 0; color: {{ config.color_principal }}; text-transform: uppercase;">Cargando...</h3>
-            <button type="button" onclick="cambiarMes(1)" style="background: #444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Mes &gt;</button>
+            <button type="button" onclick="cambiarMes(-1)" style="background: transparent; color: var(--color-marca); border: 1px solid #333; padding: 5px 15px; border-radius: 4px; cursor: pointer;">&lt;</button>
+            <h4 id="mes-año-texto" style="margin: 0; color: var(--texto-principal); text-transform: uppercase; letter-spacing: 1px;">Cargando...</h4>
+            <button type="button" onclick="cambiarMes(1)" style="background: transparent; color: var(--color-marca); border: 1px solid #333; padding: 5px 15px; border-radius: 4px; cursor: pointer;">&gt;</button>
         </div>
-        
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #aaa; font-size: 14px;">
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #666; font-size: 12px;">
             <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
         </div>
-        
-        <div id="dias-calendario" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
-            </div>
+        <div id="dias-calendario" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
     </div>
+
+    {% if citas %}
+        {% for cita in citas %}
+        <div class="cita-card">
+            <div class="cita-header">
+                <span class="hora">{{ cita.hora_inicio }} - {{ cita.hora_fin }}</span>
+                {% if barbero_seleccionado == 'Todos' %}
+                <span style="font-size: 12px; background: #333; padding: 2px 8px; border-radius: 10px; color: #ccc;">✂️ {{ cita.barbero }}</span>
+                {% endif %}
+            </div>
+            <div class="cliente">👤 {{ cita.cliente_nombre }}</div>
+            <div class="servicios">💈 {{ cita.servicios_json }}</div>
+            {% if cita.cliente_telefono and cita.cliente_telefono != 'ADMIN' %}
+            <div style="color: var(--texto-secundario); font-size: 13px;">📞 {{ cita.cliente_telefono }}</div>
+            {% endif %}
+            <a href="/admin_borrar/{{ cita.id }}?fecha={{ fecha }}" class="btn-cancelar" onclick="return confirm('¿Seguro que quieres borrar esta cita?')">Cancelar</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #888; padding: 20px; background: var(--card-bg); border-radius: 12px; border: 1px solid #2a2a2a;">No hay citas para este día.</p>
+    {% endif %}
 
     <div id="modalBloquear" class="modal">
         <div class="modal-content">
             <span class="cerrar" onclick="cerrarModal('modalBloquear')">&times;</span>
-            <h3 style="margin-top: 0; color: #ff4444;">🔒 Bloquear Agenda</h3>
+            <h3 style="margin-top: 0; color: var(--rojo);">Bloquear Agenda</h3>
             <form action="/admin_bloquear" method="POST">
                 <div class="form-group">
-                    <label>Barbero a bloquear:</label>
+                    <label>Barbero:</label>
                     <select name="barbero" required>
                         {% for b in config.barberos %}
                         <option value="{{ b }}">{{ b }}</option>
@@ -113,21 +91,19 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Motivo (Ej: Vacaciones):</label>
-                    <input type="text" name="concepto" placeholder="Escribe el motivo..." required>
+                    <label>Motivo:</label>
+                    <input type="text" name="concepto" placeholder="Ej: Vacaciones" required>
                 </div>
-                
                 <div style="display: flex; gap: 10px;">
                     <div class="form-group" style="flex: 1;">
-                        <label>Desde el día:</label>
+                        <label>Desde:</label>
                         <input type="date" name="fecha_inicio" value="{{ fecha }}" required>
                     </div>
                     <div class="form-group" style="flex: 1;">
-                        <label>Hasta el día:</label>
+                        <label>Hasta:</label>
                         <input type="date" name="fecha_fin" value="{{ fecha }}" required>
                     </div>
                 </div>
-
                 <div style="display: flex; gap: 10px;">
                     <div class="form-group" style="flex: 1;">
                         <label>Hora Inicio:</label>
@@ -138,9 +114,7 @@
                         <input type="time" name="hora_fin" value="23:59" required>
                     </div>
                 </div>
-                
-                <p style="font-size: 12px; color: #888; margin-top: 0;">* Para bloquear días enteros, deja las horas de 00:00 a 23:59.</p>
-                <button type="submit" style="width: 100%;" class="btn-accion btn-bloquear">Confirmar Bloqueo</button>
+                <button type="submit" style="width: 100%; padding: 12px; background: var(--rojo); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Confirmar Bloqueo</button>
             </form>
         </div>
     </div>
@@ -148,18 +122,16 @@
     <div id="modalAgendar" class="modal">
         <div class="modal-content" style="max-height: 75vh; overflow-y: auto; margin: 5vh auto; padding-bottom: 30px;">
             <span class="cerrar" onclick="cerrarModal('modalAgendar')">&times;</span>
-            <h3 style="margin-top: 0; color: #28a745;">➕ Nueva Cita</h3>
-
+            <h3 style="margin-top: 0; color: var(--color-marca);">Nueva Cita</h3>
+            
             <div class="form-group">
-                <label>Nombre del Cliente:</label>
+                <label>Cliente:</label>
                 <input type="text" id="admin-nombre" placeholder="Nombre completo" required>
             </div>
-
             <div class="form-group">
                 <label>Teléfono (Opcional):</label>
                 <input type="tel" id="admin-telefono" placeholder="Ej: 600123456">
             </div>
-
             <div class="form-group">
                 <label>Barbero:</label>
                 <select id="admin-barbero">
@@ -168,28 +140,26 @@
                     {% endfor %}
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Servicios:</label>
-                <div style="background: #111; padding: 10px; border-radius: 4px; max-height: 150px; overflow-y: auto; border: 1px solid #444;">
+                <div style="background: #050505; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; border: 1px solid #333;">
                     {% for nombre, detalles in config.servicios.items() %}
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: white; margin-bottom: 8px;">
-                        <input type="checkbox" class="admin-servicio-cb" value="{{ nombre }}" data-duracion="{{ detalles.duracion }}" style="transform: scale(1.2);">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--texto-principal); margin-bottom: 8px;">
+                        <input type="checkbox" class="admin-servicio-cb" value="{{ nombre }}" data-duracion="{{ detalles.duracion }}" style="transform: scale(1.2); margin: 0; width: auto;">
                         {{ nombre }} ({{ detalles.duracion }} min)
                     </label>
                     {% endfor %}
                 </div>
             </div>
-
             <div class="form-group">
                 <label>Fecha:</label>
                 <input type="date" id="admin-fecha" value="{{ fecha }}">
             </div>
-
-            <button type="button" onclick="buscarHorasAdmin()" class="btn-accion" style="width: 100%; background: #007bff; color: white; margin-bottom: 15px;">🔍 Buscar Horas Libres</button>
-
+            
+            <button type="button" onclick="buscarHorasAdmin()" style="width: 100%; padding: 12px; background: var(--color-marca); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">Buscar Horas Libres</button>
+            
             <div id="admin-horas-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
-
+            
             <form action="/admin_reservar" method="POST" id="form-admin-reserva" style="display: none;">
                 <input type="hidden" name="barbero" id="hidden-barbero">
                 <input type="hidden" name="nombre" id="hidden-nombre">
@@ -198,7 +168,7 @@
                 <input type="hidden" name="fecha" id="hidden-fecha">
                 <input type="hidden" name="hora_inicio" id="hidden-hora">
                 <input type="hidden" name="duracion" id="hidden-duracion">
-                <button type="submit" style="width: 100%;" class="btn-accion btn-agendar">Confirmar Cita</button>
+                <button type="submit" style="width: 100%; padding: 12px; background: var(--verde); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Confirmar Cita</button>
             </form>
         </div>
     </div>
@@ -212,14 +182,15 @@
                 document.getElementById('form-admin-reserva').style.display = 'none';
             }
         }
-        
-        // Si cambiamos de barbero, recargamos la página manteniendo el día actual
+        window.onclick = function(event) { if (event.target.className === 'modal') { event.target.style.display = "none"; } }
+
         function actualizarFiltros() {
+            const f = document.getElementById('buscador-fecha').value;
             const b = document.getElementById('buscador-barbero').value;
-            window.location.href = '/admin?fecha={{ fecha }}&barbero=' + b;
+            window.location.href = '/admin?fecha=' + f + '&barbero=' + b;
         }
 
-        // --- MOTOR DEL CALENDARIO DINÁMICO ---
+        // --- MOTOR DEL CALENDARIO ADMIN ---
         let fechaActualCalendario = new Date("{{ fecha }}");
         
         async function cargarCalendario() {
@@ -230,168 +201,106 @@
             const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
             document.getElementById('mes-año-texto').innerText = `${nombresMeses[mes - 1]} ${anio}`;
 
-            // Pedimos a Python los colores del mes
             const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
             const datosColores = await response.json();
-
             const contenedorDias = document.getElementById('dias-calendario');
             contenedorDias.innerHTML = '';
 
             const primerDiaMes = new Date(anio, mes - 1, 1).getDay();
             const diasTotalesMes = new Date(anio, mes, 0).getDate();
-            
-            // Ajustar para que Lunes sea el primer día (getDay() da 0 para Domingo)
             let huecosVacios = primerDiaMes === 0 ? 6 : primerDiaMes - 1;
-
-            // Rellenar huecos vacíos antes del día 1
-            for (let i = 0; i < huecosVacios; i++) {
-                contenedorDias.innerHTML += `<div style="padding: 10px 0;"></div>`;
-            }
+            
+            for (let i = 0; i < huecosVacios; i++) { contenedorDias.innerHTML += `<div></div>`; }
 
             const fechaSeleccionadaHoy = "{{ fecha }}";
 
-            // Pintar los días
             for (let dia = 1; dia <= diasTotalesMes; dia++) {
                 const diaStr = String(dia).padStart(2, '0');
                 const mesStr = String(mes).padStart(2, '0');
                 const fechaIteracion = `${anio}-${mesStr}-${diaStr}`;
                 
-                const colorLogico = datosColores[fechaIteracion] || 'verde';
+                let colorLogico = datosColores[fechaIteracion] || 'verde';
+                let bgCSS = 'transparent';
+                let colorTexto = 'var(--texto-principal)';
+                let colorPunto = 'var(--verde)';
                 
-                let bgCSS = '#28a745'; // Verde
-                let textoCSS = 'white';
-                
-                if (colorLogico === 'amarillo') {
-                    bgCSS = '#ffc107'; 
-                    textoCSS = 'black';
-                } else if (colorLogico === 'rojo') {
-                    bgCSS = '#dc3545';
-                }
+                if (colorLogico === 'amarillo') { colorPunto = '#ffc107'; } 
+                else if (colorLogico === 'rojo') { colorPunto = 'var(--rojo)'; }
 
-                // Recuadro blanco para saber en qué día estamos clickados
-                let bordeCSS = fechaIteracion === fechaSeleccionadaHoy ? '3px solid white' : '1px solid #444';
+                let bordeCSS = fechaIteracion === fechaSeleccionadaHoy ? '1px solid var(--color-marca)' : '1px solid #2a2a2a';
+                if(fechaIteracion === fechaSeleccionadaHoy) bgCSS = 'rgba(196, 161, 97, 0.1)';
 
                 contenedorDias.innerHTML += `
                     <div onclick="window.location.href='/admin?fecha=${fechaIteracion}&barbero=${barbero}'"
-                         style="background: ${bgCSS}; color: ${textoCSS}; padding: 10px 0; border-radius: 4px; cursor: pointer; border: ${bordeCSS}; font-weight: bold; text-align: center; opacity: 0.9;">
+                         style="background: ${bgCSS}; color: ${colorTexto}; padding: 8px 0; border-radius: 6px; cursor: pointer; border: ${bordeCSS}; font-weight: 500; text-align: center; position: relative;">
                         ${dia}
+                        <div style="width: 6px; height: 6px; background: ${colorPunto}; border-radius: 50%; margin: 3px auto 0 auto;"></div>
                     </div>
                 `;
             }
         }
-
-        function cambiarMes(salto) {
-            fechaActualCalendario.setMonth(fechaActualCalendario.getMonth() + salto);
-            cargarCalendario();
-        }
-
-        // Arrancar el calendario al abrir la página
+        function cambiarMes(salto) { fechaActualCalendario.setMonth(fechaActualCalendario.getMonth() + salto); cargarCalendario(); }
         document.addEventListener("DOMContentLoaded", cargarCalendario);
 
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = "none";
-            }
-        }
-
-        // --- NUEVO MOTOR DE RESERVAS PARA EL ADMIN ---
+        // --- AGENDADO DINÁMICO ADMIN ---
         async function buscarHorasAdmin() {
             const nombre = document.getElementById('admin-nombre').value.trim();
-            if (!nombre) {
-                alert("Por favor, escribe primero el nombre del cliente.");
-                return;
-            }
-
+            if (!nombre) { alert("Por favor, escribe primero el nombre del cliente."); return; }
             const barbero = document.getElementById('admin-barbero').value;
             const fecha = document.getElementById('admin-fecha').value;
             const checkboxes = document.querySelectorAll('.admin-servicio-cb:checked');
+            if (checkboxes.length === 0) { alert("Selecciona al menos un servicio."); return; }
 
-            if (checkboxes.length === 0) {
-                alert("Selecciona al menos un servicio.");
-                return;
-            }
-
-            let duracionTotal = 0;
-            let nombresServicios = [];
+            let duracionTotal = 0; let nombresServicios = [];
             checkboxes.forEach(cb => {
                 duracionTotal += parseInt(cb.getAttribute('data-duracion'));
                 nombresServicios.push(cb.value);
             });
 
-            // Llamamos a tu servidor de Python
             const response = await fetch('/obtener_horas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ fecha: fecha, servicios: nombresServicios, barbero: barbero, duracion: duracionTotal })
+                body: JSON.stringify({ fecha: fecha, servicios: nombresServicios, barbero: barbero, duracion: duracionTotal })
             });
 
             const data = await response.json();
             const contenedor = document.getElementById('admin-horas-container');
-            contenedor.innerHTML = ''; // Limpiar búsquedas anteriores
+            contenedor.innerHTML = ''; 
 
             if (data.horas && data.horas.length > 0) {
                 data.horas.forEach(hora => {
                     const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.textContent = hora;
-                    btn.style.cssText = 'padding: 10px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; flex: 1; min-width: 60px; font-size: 16px;';
+                    btn.type = 'button'; btn.textContent = hora;
+                    btn.style.cssText = 'padding: 10px; background: #222; color: var(--texto-principal); border: 1px solid #444; border-radius: 8px; cursor: pointer; flex: 1; min-width: 60px; font-size: 16px;';
                     btn.onclick = (e) => seleccionarHoraAdmin(e, hora, barbero, fecha, nombresServicios.join(', '), duracionTotal, nombre);
                     contenedor.appendChild(btn);
                 });
             } else {
-                contenedor.innerHTML = '<p style="color: #ff4444; width: 100%; text-align: center; margin: 0;">No hay horas libres para esta duración.</p>';
+                contenedor.innerHTML = '<p style="color: var(--rojo); width: 100%; text-align: center; margin: 0;">No hay horas libres para esta duración.</p>';
             }
-
             document.getElementById('form-admin-reserva').style.display = 'none';
         }
 
         function seleccionarHoraAdmin(evento, hora, barbero, fecha, serviciosStr, duracion, nombre) {
-            // Pintar de verde el botón pulsado
             const botones = document.getElementById('admin-horas-container').querySelectorAll('button');
-            botones.forEach(b => { b.style.background = '#444'; b.style.borderColor = '#666'; });
-            evento.target.style.background = '#28a745';
-            evento.target.style.borderColor = '#28a745';
+            botones.forEach(b => { b.style.background = '#222'; b.style.borderColor = '#444'; b.style.color = 'var(--texto-principal)'; });
+            
+            evento.target.style.background = 'var(--color-marca)';
+            evento.target.style.borderColor = 'var(--color-marca)';
+            evento.target.style.color = '#000';
 
-            // Rellenar los datos ocultos para Python
             document.getElementById('hidden-barbero').value = barbero;
             document.getElementById('hidden-nombre').value = nombre;
-           document.getElementById('hidden-telefono').value = document.getElementById('admin-telefono').value;
+            document.getElementById('hidden-telefono').value = document.getElementById('admin-telefono').value;
             document.getElementById('hidden-fecha').value = fecha;
             document.getElementById('hidden-hora').value = hora;
             document.getElementById('hidden-duracion').value = duracion;
             document.getElementById('hidden-servicios').value = serviciosStr;
 
-            // Mostrar el botón final y hacer scroll automático hacia él
             const formReserva = document.getElementById('form-admin-reserva');
             formReserva.style.display = 'block';
-            
-            // Le decimos al modal que baje hasta abajo del todo de forma suave
-            setTimeout(() => {
-                formReserva.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }, 100);
+            setTimeout(() => { formReserva.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
     </script>
-
-    {% if citas %}
-        {% for cita in citas %}
-        <div class="cita-card" style="{% if cita.cliente_telefono == 'ADMIN_BLOCK' %} border-left-color: #666; opacity: 0.8; background: #2a2a2a; {% endif %}">
-            <div class="hora">{{ cita.hora_inicio }} - {{ cita.hora_fin }}</div>
-            <div class="cliente">{{ cita.cliente_nombre }}</div>
-            <div class="servicios">{{ cita.servicios_json }}</div>
-            <div style="margin-top:10px;">
-                <a href="tel:{{ cita.cliente_telefono }}" style="color: lightblue; text-decoration: none;">📞 Llamar</a>
-                <form action="/cancelar/{{ cita.id }}" method="POST" onsubmit="return confirm('¿Seguro que quieres cancelar y borrar esta cita?');" style="display:inline; float:right;">
-                    <input type="hidden" name="fecha_actual" value="{{ fecha }}">
-                    <button type="submit" style="background: #cc0000; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">❌ Cancelar</button>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p>No tienes citas para hoy. ¡Día de relax!</p>
-    {% endif %}
-
-    <button onclick="location.reload()" style="width:100%; padding:15px; background: #444; color:white; border:none; border-radius:5px; margin-top:20px;">🔄 Actualizar Agenda</button>
-
 </body>
 </html>

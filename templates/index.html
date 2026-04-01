@@ -4,138 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#050505">
-    <link rel="icon" type="image/png" href="/static/logo_oro.png">
-    <link rel="apple-touch-icon" href="/static/logo_oro.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="{{ config.estetica.bg_app }}">
+    <link rel="icon" type="image/png" href="{{ config.estetica.logo_url }}">
+    <link rel="apple-touch-icon" href="{{ config.estetica.logo_url }}">
 
     <title>{{ config.nombre_negocio }}</title>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-
         :root { 
-            --color-marca: #c4a161; 
-            --bg-app: #050505; 
-            --card-bg: #1a1a1a; 
-            --texto-principal: #f7f1e1; 
-            --texto-secundario: #a69c8a; 
+            --color-marca: {{ config.estetica.color_marca }}; 
+            --bg-app: {{ config.estetica.bg_app }}; 
+            --card-bg: {{ config.estetica.card_bg }}; 
+            --texto-principal: {{ config.estetica.texto_principal }}; 
+            --texto-secundario: {{ config.estetica.texto_secundario }}; 
         }
-
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: var(--bg-app); 
-            color: var(--texto-principal); 
-        }
-
-        /* --- NAVEGACIÓN --- */
-        nav { 
-            background: rgba(10, 10, 10, 0.85); 
-            backdrop-filter: blur(15px); 
-            padding: 10px 25px; 
-            position: sticky; top: 0; 
-            display: flex; justify-content: space-between; align-items: center; 
-            z-index: 1000; border-bottom: 1px solid #2a2a2a;
-        }
-
-        .menu-hamburguesa { cursor: pointer; font-size: 24px; display: block; color: var(--color-marca); }
-
-        .nav-links { 
-            position: absolute; top: 100%; left: 0; width: 100%; 
-            background: #151515; display: none; flex-direction: column; 
-            box-shadow: 0 15px 25px rgba(0,0,0,0.6);
-        }
-        .nav-links.active { display: flex; }
-        .nav-links a { padding: 18px; text-decoration: none; color: var(--texto-principal); border-bottom: 1px solid #2a2a2a; font-weight: 500; }
-
-        /* --- TARJETAS Y SECCIONES --- */
-        section { padding: 30px 20px; max-width: 600px; margin: 0 auto; } 
-        #servicios { padding-bottom: 100px; } 
-        
-        .card { 
-            background: var(--card-bg); 
-            padding: 25px; border-radius: 20px; 
-            margin-bottom: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            border: 1px solid #2a2a2a;
-        }
-
-        h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-top: 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-
-        .servicio-item { 
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px; margin-bottom: 12px;
-            border-radius: 15px; background: #222;
-            transition: all 0.3s ease; border: 1px solid #333; cursor: pointer;
-            color: var(--texto-principal);
-        }
-
-        .servicio-item:has(input:checked) {
-            border-color: var(--color-marca);
-            background: rgba(196, 161, 97, 0.05); 
-            box-shadow: 0 0 15px rgba(196, 161, 97, 0.15);
-        }
-
-        .servicio-item input { margin-right: 15px; accent-color: var(--color-marca); transform: scale(1.2); }
-
-        /* --- INPUTS --- */
-        input, select, textarea {
-            font-size: 16px !important; 
-            width: 100%; padding: 15px; margin-bottom: 20px; 
-            border-radius: 12px; border: 1px solid #333; 
-            font-family: 'Poppins', sans-serif; box-sizing: border-box;
-            background-color: #252525; 
-            color: var(--texto-principal);
-        }
-
-        /* --- BOTONES Y RESUMEN FLOTANTE --- */
-        .resumen-flotante {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 450px;
-            background: #111; color: var(--texto-principal);
-            padding: 15px 25px; border-radius: 50px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-            border: 1px solid #333;
-            z-index: 1001;
-        }
-
-        .btn-continuar {
-            background: var(--color-marca); color: #000;
-            border: none; padding: 12px 25px; border-radius: 30px;
-            font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 16px;
-        }
-        .btn-continuar:disabled { background: #333; color: #666; opacity: 1; }
-        
-        .btn-principal { 
-            width: 100%; padding: 18px; background: var(--color-marca); color: #000; 
-            border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        /* --- CALENDARIO Y HORAS --- */
-        .grid-horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
-        
-        .btn-hora { 
-            padding: 15px 5px; border: 1px solid #333; background: #222; 
-            border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s;
-            font-size: 16px; color: var(--texto-principal);
-        }
-        
-        .btn-hora.seleccionado { 
-            border-color: var(--color-marca); 
-            color: #000; 
-            background: var(--color-marca); 
-            box-shadow: 0 4px 15px rgba(196, 161, 97, 0.3);
-        }
-        
-        footer { text-align: center; padding: 20px; font-size: 14px; color: #555; }
     </style>
+    <link rel="stylesheet" href="/static/estilos.css">
 </head>
 <body>
 
     <nav>
         <div style="display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.2em; color: var(--color-marca);">
-            <img src="/static/logo_oro.png" alt="Logo" style="height: 35px; width: auto;">
+            <img src="{{ config.estetica.logo_url }}" alt="Logo" style="height: 35px; width: auto;">
             {{ config.nombre_negocio }}
         </div>
         <div class="menu-hamburguesa" onclick="toggleMenu()">☰</div>
@@ -172,7 +63,7 @@
                 {% endfor %}
             </div>
 
-            <div class="resumen-flotante" id="barra-pago">
+            <div class="resumen-flotante" id="barra-pago" style="display: none;">
                 <div>
                     <span id="total-precio" style="font-size: 1.4em; font-weight: 600; color: var(--color-marca);">0</span><span style="color: var(--color-marca);">€</span>
                     <small style="opacity: 0.7; margin-left: 5px;">(<span id="total-duracion">0</span> min)</small>
@@ -183,7 +74,7 @@
             <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
                 <h3 style="margin-top:0; color: var(--texto-principal);">Elige fecha y hora</h3>
                 
-                <div id="calendario-cliente" style="background: #151515; border: 1px solid #2a2a2a; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+                <div id="calendario-cliente" style="background: #111; border: 1px solid #2a2a2a; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <button type="button" onclick="cambiarMesCliente(-1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
                         <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
@@ -211,15 +102,17 @@
     <section id="info" style="padding-top: 0;">
         <div class="card" style="margin-bottom: 0;">
             <h2>Sobre nosotros</h2>
-            <p>Bienvenidos a {{ config.nombre_negocio }}. Somos expertos en barbería clásica y moderna.</p>
-            <p>Calidad, estilo y un ambiente relajado para que disfrutes de tu momento.</p>
+            <p>Bienvenidos a {{ config.nombre_negocio }}.</p>
+            {% for parrafo in config.sobre_nosotros %}
+            <p>{{ parrafo }}</p>
+            {% endfor %}
         </div>
     </section>
 
     <section id="ubicacion" style="padding-top: 15px;">
         <div class="card" style="margin-bottom: 0;">
             <h2>Ubicación y Horario</h2>
-            <p>📍 Calle Falsa 123, Tu Ciudad.</p>
+            <p>📍 {{ config.direccion }}</p>
             <p><strong>Horarios:</strong></p>
             <ul style="color: var(--texto-secundario); line-height: 1.8;">
                 <li>Mañanas: {{ config.horario.apertura_manana }} - {{ config.horario.cierre_manana }}</li>
@@ -254,6 +147,9 @@
             totalPrecioEl.textContent = precio;
             totalDuracionEl.textContent = duracion;
             btnVerFechas.disabled = !seleccionado;
+            
+            // Mostrar u ocultar la barra flotante según haya selección
+            document.getElementById('barra-pago').style.display = seleccionado ? 'flex' : 'none';
         }
 
         checkboxes.forEach(box => box.addEventListener('change', actualizarCarrito));
@@ -270,7 +166,6 @@
             cargarCalendarioCliente();
         }
 
-        // --- MOTOR DEL CALENDARIO CLIENTE ---
         let fechaActualCalendarioCliente = new Date();
         
         async function cargarCalendarioCliente() {
@@ -450,7 +345,7 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
                 if (Notification.permission === 'granted') {
                     new Notification("¡Reserva Confirmada!", {
                         body: "Tu cita en {{ config.nombre_negocio }} ha sido registrada.",
-                       icon: "/static/logo_oro.png"
+                        icon: "{{ config.estetica.logo_url }}"
                     });
                 }
                 

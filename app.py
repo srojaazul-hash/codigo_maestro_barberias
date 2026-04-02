@@ -221,15 +221,18 @@ def admin():
     
     return render_template('admin.html', citas=citas_hoy, fecha=fecha_seleccionada, barbero_seleccionado=barbero_seleccionado, config=CONFIGURACION)
 
-@app.route('/cancelar/<int:id>', methods=['POST'])
+@app.route('/admin_borrar/<int:id>')
 @login_required
 def cancelar_cita(id):
-    fecha_actual = request.form.get('fecha_actual')
+    # Cogemos la fecha de la URL (request.args) en lugar de un formulario
+    fecha_actual = request.args.get('fecha')
+    
     conn = obtener_conexion()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM citas WHERE id = ?", (id,))
     conn.commit()
     conn.close()
+    
     # Recargamos la misma fecha que el barbero estaba mirando
     return redirect(url_for('admin', fecha=fecha_actual))
 
@@ -265,22 +268,28 @@ def admin_reservar():
 @app.route('/api/estado_mes')
 def estado_mes():
     import calendar
+    from datetime import datetime
+    
     anio = int(request.args.get('anio'))
     mes = int(request.args.get('mes'))
     barbero_seleccionado = request.args.get('barbero', 'Todos')
 
-    # 1. Calculamos los minutos totales de trabajo de un día normal
+    # 1. Calculamos los minutos de trabajo de un turno normal
     fmt = '%H:%M'
     ap_m = datetime.strptime(CONFIGURACION['horario']['apertura_manana'], fmt)
     ci_m = datetime.strptime(CONFIGURACION['horario']['cierre_manana'], fmt)
     ap_t = datetime.strptime(CONFIGURACION['horario']['apertura_tarde'], fmt)
     ci_t = datetime.strptime(CONFIGURACION['horario']['cierre_tarde'], fmt)
 
-    minutos_jornada = ((ci_m - ap_m).seconds + (ci_t - ap_t).seconds) / 60
+    minutos_jornada_un_barbero = ((ci_m - ap_m).seconds + (ci_t - ap_t).seconds) / 60
+    
+    # Capacidad total dependiendo de si miramos a uno o a todos
     if barbero_seleccionado == 'Todos':
-        minutos_jornada *= len(CONFIGURACION['barberos'])
+        minutos_jornada_total = minutos_jornada_un_barbero * len(CONFIGURACION['barberos'])
+    else:
+        minutos_jornada_total = minutos_jornada_un_barbero
 
-    # 2. Buscamos todas las citas de ese mes de golpe
+    # 2. Buscamos todas las citas del mes
     mes_str = f"{anio}-{mes:02d}-"
     conn = obtener_conexion()
     cursor = conn.cursor()
@@ -291,18 +300,29 @@ def estado_mes():
     citas_mes = cursor.fetchall()
     conn.close()
 
-    # 3. Sumamos los minutos ocupados de cada día
+    # 3. Sumamos solo los minutos ocupados que caen DENTRO de los turnos de apertura
     ocupacion_por_dia = {}
     for cita in citas_mes:
         fecha_cita = cita['fecha']
         try:
             h_in = datetime.strptime(cita['hora_inicio'], fmt)
             h_out = datetime.strptime(cita['hora_fin'], fmt)
-            minutos_ocupados = (h_out - h_in).seconds / 60
             
+            # Calcular intersección de la cita con el turno de mañana
+            inicio_m = max(h_in, ap_m)
+            fin_m = min(h_out, ci_m)
+            min_m = (fin_m - inicio_m).seconds / 60 if inicio_m < fin_m else 0
+            
+            # Calcular intersección de la cita con el turno de tarde
+            inicio_t = max(h_in, ap_t)
+            fin_t = min(h_out, ci_t)
+            min_t = (fin_t - inicio_t).seconds / 60 if inicio_t < fin_t else 0
+            
+            minutos_reales_ocupados = min_m + min_t
+
             if fecha_cita not in ocupacion_por_dia:
                 ocupacion_por_dia[fecha_cita] = 0
-            ocupacion_por_dia[fecha_cita] += minutos_ocupados
+            ocupacion_por_dia[fecha_cita] += minutos_reales_ocupados
         except:
             pass 
 
@@ -314,9 +334,14 @@ def estado_mes():
         fecha_str = f"{anio}-{mes:02d}-{dia:02d}"
         min_ocupados = ocupacion_por_dia.get(fecha_str, 0)
         
-        porcentaje_libre = ((minutos_jornada - min_ocupados) / minutos_jornada) * 100
+        # Blindaje: Evitamos que por un error los minutos ocupados superen la capacidad teórica
+        if min_ocupados > minutos_jornada_total:
+            min_ocupados = minutos_jornada_total
+            
+        porcentaje_libre = ((minutos_jornada_total - min_ocupados) / minutos_jornada_total) * 100
 
-        if porcentaje_libre > 50:
+        # Lógica estricta de colores
+        if porcentaje_libre > 20:
             resultado[fecha_str] = "verde"
         elif porcentaje_libre > 0:
             resultado[fecha_str] = "amarillo"

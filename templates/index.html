@@ -197,17 +197,29 @@
                 <h3 style="margin-top:0; color: var(--texto-principal);">Elige fecha y hora</h3>
                 
                 <div id="calendario-cliente" style="background: #111; border: 1px solid #2a2a2a; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
-                        <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
-                        <button type="button" onclick="cambiarMesCliente(1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #888; font-size: 14px;">
-                        <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
-                    </div>
-                    <div id="dias-calendario-cliente" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
-                </div>
-                
+    
+    <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 12px; color: var(--texto-secundario);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; background: #28a745; border-radius: 50%;"></div> Días libres
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; background: #ffc107; border-radius: 50%;"></div> Pocas libres
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; background: #dc3545; border-radius: 50%;"></div> Completo
+        </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
+        <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
+        <button type="button" onclick="cambiarMesCliente(1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #888; font-size: 14px;">
+        <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
+    </div>
+    <div id="dias-calendario-cliente" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
+</div>
                 <input type="hidden" id="fecha-reserva">
                 <div id="contenedor-horas" class="grid-horas"></div>
             </div>
@@ -345,68 +357,75 @@
             const mesAnioElement = document.getElementById('mes-año-cliente');
             if (mesAnioElement) mesAnioElement.innerText = `${nombresMeses[mes - 1]} ${anio}`;
 
-            const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
-            const datosColores = await response.json();
+            try {
+                const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
+                const datosColores = await response.json();
 
-            const contenedorDias = document.getElementById('dias-calendario-cliente');
-            if(!contenedorDias) return;
-            contenedorDias.innerHTML = '';
+                const contenedorDias = document.getElementById('dias-calendario-cliente');
+                if(!contenedorDias) return;
+                contenedorDias.innerHTML = '';
 
-            const primerDiaMes = new Date(anio, mes - 1, 1).getDay();
-            const diasTotalesMes = new Date(anio, mes, 0).getDate();
-            let huecosVacios = primerDiaMes === 0 ? 6 : primerDiaMes - 1;
+                const primerDiaMes = new Date(anio, mes - 1, 1).getDay();
+                const diasTotalesMes = new Date(anio, mes, 0).getDate();
+                let huecosVacios = primerDiaMes === 0 ? 6 : primerDiaMes - 1;
 
-            for (let i = 0; i < huecosVacios; i++) {
-                contenedorDias.innerHTML += `<div></div>`;
-            }
-
-            const hoy = new Date();
-            hoy.setHours(0,0,0,0);
-            const fechaReservaEl = document.getElementById('fecha-reserva');
-            const fechaSeleccionada = fechaReservaEl ? fechaReservaEl.value : '';
-
-            for (let dia = 1; dia <= diasTotalesMes; dia++) {
-                const diaStr = String(dia).padStart(2, '0');
-                const mesStr = String(mes).padStart(2, '0');
-                const fechaIteracion = `${anio}-${mesStr}-${diaStr}`;
-                const fechaIteracionObj = new Date(anio, mes - 1, dia);
-                
-                let colorLogico = datosColores[fechaIteracion] || 'verde';
-                
-                let bgCSS = '#222'; 
-                let colorTexto = 'var(--texto-principal)';
-                let cursor = 'pointer';
-                let clickEvent = `seleccionarFechaCliente('${fechaIteracion}', '${colorLogico}')`;
-                let opacity = '1';
-
-                if (fechaIteracionObj < hoy) {
-                    bgCSS = '#111'; 
-                    colorTexto = '#555';
-                    cursor = 'not-allowed';
-                    clickEvent = '';
-                } else if (colorLogico === 'amarillo') {
-                    bgCSS = 'rgba(196, 161, 97, 0.15)'; 
-                    colorTexto = 'var(--color-marca)';
-                } else if (colorLogico === 'rojo') {
-                    bgCSS = '#2a0b0b'; 
-                    colorTexto = '#dc3545';
-                    cursor = 'not-allowed';
-                    clickEvent = `alert('Este día está completo. Por favor, elige otra fecha.')`;
-                    opacity = '0.6';
+                for (let i = 0; i < huecosVacios; i++) {
+                    contenedorDias.innerHTML += `<div></div>`;
                 }
 
-                let borde = fechaSeleccionada === fechaIteracion ? `2px solid var(--color-marca)` : '1px solid transparent';
-                if(fechaSeleccionada === fechaIteracion) {
-                    bgCSS = `var(--color-marca)`; 
-                    colorTexto = '#000';
-                }
+                // DEFINIMOS 'HOY' Y 'FECHA SELECCIONADA' ANTES DEL BUCLE
+                const hoy = new Date();
+                hoy.setHours(0,0,0,0);
+                const fechaReservaEl = document.getElementById('fecha-reserva');
+                const fechaSeleccionada = fechaReservaEl ? fechaReservaEl.value : '';
 
-                contenedorDias.innerHTML += `
-                    <div onclick="${clickEvent}"
-                         style="background: ${bgCSS}; color: ${colorTexto}; padding: 10px 0; border-radius: 8px; cursor: ${cursor}; border: ${borde}; font-weight: 500; font-size: 15px; transition: 0.2s; opacity: ${opacity};">
-                        ${dia}
-                    </div>
-                `;
+                // UN SOLO BUCLE PARA PINTAR LOS DÍAS CON LA NUEVA ESTÉTICA
+                for (let dia = 1; dia <= diasTotalesMes; dia++) {
+                    const diaStr = String(dia).padStart(2, '0');
+                    const mesStr = String(mes).padStart(2, '0');
+                    const fechaIteracion = `${anio}-${mesStr}-${diaStr}`;
+                    const fechaIteracionObj = new Date(anio, mes - 1, dia);
+                    
+                    let colorLogico = datosColores[fechaIteracion] || 'verde';
+                    
+                    let bgCSS = 'transparent'; 
+                    let colorTexto = 'var(--texto-principal)';
+                    let cursor = 'pointer';
+                    let clickEvent = `seleccionarFechaCliente('${fechaIteracion}', '${colorLogico}')`;
+                    let opacity = '1';
+                    let colorPunto = '#28a745'; // Verde por defecto
+                    
+                    if (fechaIteracionObj < hoy) {
+                        colorTexto = '#555';
+                        cursor = 'not-allowed';
+                        clickEvent = '';
+                        colorPunto = 'transparent'; // Ocultamos el punto si ya pasó el día
+                    } else if (colorLogico === 'amarillo') {
+                        colorPunto = '#ffc107';
+                    } else if (colorLogico === 'rojo') {
+                        colorPunto = '#dc3545';
+                        cursor = 'not-allowed';
+                        clickEvent = `alert('Este día está completo. Por favor, elige otra fecha.')`;
+                        opacity = '0.6';
+                    }
+
+                    // Resaltado del día seleccionado
+                    let borde = fechaSeleccionada === fechaIteracion ? `1px solid var(--color-marca)` : '1px solid #2a2a2a';
+                    if(fechaSeleccionada === fechaIteracion) {
+                        bgCSS = 'rgba(196, 161, 97, 0.1)'; 
+                    }
+
+                    // Dibujamos el recuadro con el número y el punto debajo
+                    contenedorDias.innerHTML += `
+                        <div onclick="${clickEvent}"
+                             style="background: ${bgCSS}; color: ${colorTexto}; padding: 8px 0; border-radius: 6px; cursor: ${cursor}; border: ${borde}; font-weight: 500; font-size: 15px; transition: 0.2s; opacity: ${opacity}; text-align: center; position: relative;">
+                            ${dia}
+                            <div style="width: 6px; height: 6px; background: ${colorPunto}; border-radius: 50%; margin: 3px auto 0 auto;"></div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error al cargar los días del calendario:", error);
             }
         }
 

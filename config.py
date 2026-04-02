@@ -63,6 +63,28 @@ CONFIGURACION = {
     "telefono_bizum": "+34600000000",
     "admin_password": "admin123", # Dile al cliente que la cambie luego
 
+"equipo": [
+        {
+            "nombre": "RUBÉN",
+            "foto": "/static/barbero1.jpg",
+            "descripcion": "Especialista en degradados y diseño de barba. 5 años de experiencia dando el mejor servicio.",
+            "redes": {
+                "instagram": "https://www.instagram.com/juangalleg0o",
+                "tiktok": "https://tiktok.com/@tu_usuario"
+            }
+        },
+        {
+            "nombre": "CARLOS",
+            "foto": "/static/barbero2.jpg",
+            "descripcion": "Maestro en cortes clásicos a tijera. La vieja escuela llevada al siguiente nivel.",
+            "redes": {
+                "instagram": "https://instagram.com/usuario_carlos"
+                # Si Carlos no tiene TikTok, simplemente no se pone esa línea y la web no mostrará el icono
+            }
+        }
+    ],
+
+
     "direccion": "Calle Falsa 123, Tu Ciudad",
     "sobre_nosotros": [
         "Somos expertos en barbería clásica y moderna.",

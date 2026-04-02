@@ -186,3 +186,76 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     top: 20px; right: 30px;
     color: white; font-size: 40px; cursor: pointer;
 }
+
+/* --- SECCIÓN EQUIPO / BARBEROS --- */
+.contenedor-equipo {
+    display: grid;
+    grid-template-columns: 1fr; /* En móvil se ve 1 barbero por fila */
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.tarjeta-barbero {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 15px;
+    padding: 25px 20px;
+    text-align: center;
+}
+
+.nombre-barbero {
+    color: var(--color-marca);
+    font-size: 1.8em;
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.foto-barbero-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 25px auto; /* Margen inferior extra para dejar hueco a los iconos */
+}
+
+.foto-barbero {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%; /* Foto perfectamente redonda */
+    border: 3px solid var(--color-marca);
+}
+
+.redes-barbero {
+    position: absolute;
+    bottom: -15px; /* Lo bajamos un poco para que pise el borde de la foto */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    padding: 6px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--color-marca);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.icono-red svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-marca); /* Se pintan automáticamente del color del config.py */
+    transition: transform 0.2s, fill 0.2s;
+    display: block;
+}
+
+.icono-red:hover svg {
+    transform: scale(1.1);
+    fill: #fff; /* Al tocarlo se vuelve blanco */
+}
+
+.desc-barbero {
+    color: var(--texto-secundario);
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 0;
+}

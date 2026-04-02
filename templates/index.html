@@ -140,6 +140,31 @@
         </div>
     </section>
 
+    <section id="galeria">
+        <div class="card card-dark">
+            <h2>Nuestros Trabajos</h2>
+            <div class="contenedor-carrusel">
+                <button class="carrusel-control prev" onclick="moverSlide(-1)">&#10094;</button>
+                <div class="carrusel-track" id="carruselTrack">
+                    {% for foto in config.galeria %}
+                    <div class="carrusel-slide">
+                        <img src="{{ foto.url }}" alt="{{ foto.titulo }}" onclick="ampliarFoto(this)">
+                        <div class="foto-info">{{ foto.titulo }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carrusel-control next" onclick="moverSlide(1)">&#10095;</button>
+            </div>
+            <div class="carrusel-dots" id="carruselDots">
+                </div>
+        </div>
+    </section>
+
+    <div id="modalVisor" class="modal-visor" onclick="this.style.display='none'">
+        <span class="cerrar-visor">&times;</span>
+        <img id="fotoAmpliada">
+    </div>
+
     <section id="ubicacion" style="padding-top: 15px;">
         <div class="card" style="margin-bottom: 0;">
             <h2>Ubicación y Horario</h2>
@@ -179,7 +204,6 @@
             totalDuracionEl.textContent = duracion;
             btnVerFechas.disabled = !seleccionado;
             
-            // Mostrar u ocultar la barra flotante según haya selección
             document.getElementById('barra-pago').style.display = seleccionado ? 'flex' : 'none';
         }
 
@@ -394,6 +418,74 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
         if (Notification.permission !== 'granted') {
             Notification.permission === 'default' && Notification.requestPermission();
         }
+
+        /* --- FUNCIONES DEL CARRUSEL Y VISOR DE FOTOS --- */
+        function ampliarFoto(img) {
+            const modal = document.getElementById('modalVisor');
+            const foto = document.getElementById('fotoAmpliada');
+            modal.style.display = 'flex';
+            foto.src = img.src;
+        }
+
+        let slideIndexActual = 0;
+        let slides = []; // Se llenará cuando cargue la página
+        let contenedorPuntos;
+
+        function moverSlide(direccion) {
+            if (slides.length === 0) return;
+            slideIndexActual = (slideIndexActual + direccion + slides.length) % slides.length;
+            updateCarrusel();
+        }
+
+        function irASlide(index) {
+            slideIndexActual = index;
+            updateCarrusel();
+        }
+
+        function initPuntosCarrusel() {
+            slides = document.querySelectorAll('.carrusel-slide');
+            contenedorPuntos = document.getElementById('carruselDots');
+            
+            if (!contenedorPuntos || slides.length === 0) return;
+            
+            for (let i = 0; i < slides.length; i++) {
+                const punto = document.createElement('div');
+                punto.classList.add('carrusel-dot');
+                punto.onclick = () => irASlide(i);
+                contenedorPuntos.appendChild(punto);
+            }
+        }
+
+        function updateCarrusel() {
+            if (slides.length === 0) return;
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev', 'next');
+
+                if (index === slideIndexActual) {
+                    slide.classList.add('active');
+                } else if (index === (slideIndexActual - 1 + slides.length) % slides.length) {
+                    slide.classList.add('prev');
+                } else if (index === (slideIndexActual + 1) % slides.length) {
+                    slide.classList.add('next');
+                }
+            });
+
+            const puntos = document.querySelectorAll('.carrusel-dot');
+            puntos.forEach((punto, index) => {
+                punto.classList.remove('active');
+                if (index === slideIndexActual) {
+                    punto.classList.add('active');
+                }
+            });
+        }
+
+        // INIT: ESTO ARRANCA EL CARRUSEL AL ABRIR LA WEB
+        window.onload = function() {
+            initPuntosCarrusel();
+            updateCarrusel();
+        };
+
     </script>
 </body>
 </html>

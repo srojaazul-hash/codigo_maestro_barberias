@@ -16,10 +16,10 @@ CONFIGURACION = {
     # --- CONFIGURACIÓN DE LA PORTADA (PRIMERA IMPRESIÓN) ---
     "PORTADA": {
         # Elige 'minimalista' (opción 2.1) o 'imagen' (opción 2.2)
-        "tipo": "imagen", 
+        "tipo": "minimalista", 
         
         # Interruptores: True para mostrar, False para ocultar
-        "mostrar_logo": False,
+        "mostrar_logo": True,
         "mostrar_nombre": True,
         
         # Configuración para el tipo 'minimalista'
@@ -28,6 +28,13 @@ CONFIGURACION = {
         # Configuración para el tipo 'imagen'
         "imagen_fondo": "/static/prueba_fondo.jpg" 
     },
+
+    "galeria": [
+        {"url": "/static/corte1.jpg", "titulo": "Degradado Clásico"},
+        {"url": "/static/corte2.jpg", "titulo": "Arreglo de Barba Premium"},
+        {"url": "/static/corte3.jpg", "titulo": "Corte Moderno"},
+        {"url": "/static/corte4.jpg", "titulo": "Estilo Vikingo"}
+    ],
     
     # 3. BLOQUE SERVICIOS
     "servicios": {

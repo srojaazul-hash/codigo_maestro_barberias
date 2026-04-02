@@ -44,3 +44,118 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
 .cerrar { color: var(--texto-principal); float: right; font-size: 28px; font-weight: bold; cursor: pointer; margin-top: -10px; }
 .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
 .form-group label { margin-bottom: 5px; color: #aaa; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* --- ESTILOS GALERÍA: CARRUSEL 3D (NUEVO) --- */
+#galeria .card {
+    padding: 20px 0;
+}
+
+.contenedor-carrusel {
+    position: relative;
+    width: 100%;
+    height: 350px; /* Altura de la sección de fotos */
+    perspective: 1000px; /* Crucial para el efecto 3D */
+    overflow: hidden;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carrusel-track {
+    display: flex;
+    height: 100%;
+    position: relative;
+    width: 80%; /* Ancho visible del track */
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease-out; /* Velocidad del deslizamiento */
+}
+
+.carrusel-slide {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%) scale(0.6); /* Escala base para las fotos que no están en el centro */
+    height: 100%;
+    aspect-ratio: 16/9;
+    opacity: 0.5; /* Opacidad baja para las laterales */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    transition: all 0.5s ease-out; /* Transiciones suaves de escala y profundidad */
+    z-index: 5;
+    background: #111; /* Fondo para cuando la imagen carga */
+}
+
+.carrusel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Efecto 3D y central */
+.carrusel-slide.active {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    z-index: 10; /* La foto central encima de todo */
+}
+
+.carrusel-slide.prev {
+    transform: translateX(-150%) scale(0.8) rotateY(40deg); /* Profundidad hacia atrás en la izquierda */
+    opacity: 0.8;
+}
+
+.carrusel-slide.next {
+    transform: translateX(50%) scale(0.8) rotateY(-40deg); /* Profundidad hacia atrás en la derecha */
+    opacity: 0.8;
+}
+
+.foto-info {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--color-marca);
+    font-size: 11px;
+    padding: 5px;
+    text-align: center;
+    text-transform: uppercase;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Controles: Flechas */
+.carrusel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-marca); /* Usamos el color de la barbería */
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 15;
+    transition: opacity 0.3s;
+}
+
+.carrusel-control:hover { opacity: 0.7; }
+.carrusel-control.prev { left: 10px; }
+.carrusel-control.next { right: 10px; }
+
+/* Controles: Puntos */
+.carrusel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.carrusel-dot {
+    width: 10px; height: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.carrusel-dot.active {
+    background: var(--color-marca);
+}

@@ -262,3 +262,29 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     margin-bottom: 0;
     padding: 0 10px;
 }
+
+/* --- AJUSTES RESPONSIVOS PARA MÓVIL (CARRUSEL) --- */
+@media (max-width: 768px) {
+    .contenedor-carrusel {
+        height: 220px; /* Reducimos la altura general para que quepa en el móvil */
+    }
+    
+    .carrusel-track {
+        width: 100%; /* Aprovechamos todo el ancho de la pantalla */
+    }
+    
+    .carrusel-slide {
+        width: 75%; /* En móvil, mandamos por el ancho, no por el alto */
+        height: 100%;
+        aspect-ratio: auto; /* Quitamos la restricción panorámica forzada */
+    }
+    
+    /* Ajustamos las distancias del efecto 3D para pantallas estrechas */
+    .carrusel-slide.prev {
+        transform: translateX(-120%) scale(0.8) rotateY(40deg);
+    }
+    
+    .carrusel-slide.next {
+        transform: translateX(20%) scale(0.8) rotateY(-40deg);
+    }
+}

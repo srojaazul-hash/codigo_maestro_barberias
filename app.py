@@ -8,6 +8,7 @@ from functools import wraps
 import urllib.request
 import urllib.parse
 from flask import jsonify # Asegúrate de que jsonify esté importado arriba
+import time
 
 load_dotenv() # Carga las variables del archivo .env
 app = Flask(__name__)
@@ -15,8 +16,9 @@ app = Flask(__name__)
 # Obligatorio para usar sesiones en Flask. Cambia esto por una cadena aleatoria en producción.
 app.secret_key = 'super_clave_secreta_barberia_2026'
 
+import time # Añade esto arriba del todo de tu app.py si no lo tienes
+
 def enviar_telegram_barbero(nombre, fecha, hora, servicios):
-    # Tendrás que rellenar estos dos datos más adelante
     bot_token = os.getenv("TELEGRAM_TOKEN") 
     chat_id = os.getenv("TELEGRAM_ID")
     
@@ -25,11 +27,16 @@ def enviar_telegram_barbero(nombre, fecha, hora, servicios):
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     data = urllib.parse.urlencode({'chat_id': chat_id, 'text': mensaje}).encode('utf-8')
     
-    try:
-        urllib.request.urlopen(url, data=data)
-        print("Aviso enviado por Telegram al barbero.")
-    except Exception as e:
-        print(f"Error enviando Telegram: {e}")
+    # Sistema de reintentos: Lo intentará 3 veces si hay fallos de red
+    for intento in range(3):
+        try:
+            # Añadimos un timeout de 5 segundos para que no se quede colgado
+            urllib.request.urlopen(url, data=data, timeout=5)
+            print("Aviso enviado por Telegram al barbero.")
+            break # Si se envía con éxito, salimos del bucle
+        except Exception as e:
+            print(f"Error enviando Telegram (Intento {intento + 1}/3): {e}")
+            time.sleep(2) # Espera 2 segundos antes de volver a intentarlo
 
 # --- FUNCIONES DE APOYO ---
 def obtener_conexion():

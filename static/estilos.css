@@ -77,7 +77,8 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     transform: translateX(-50%) scale(0.6); /* Escala base para las fotos que no están en el centro */
     height: 100%;
     aspect-ratio: 16/9;
-    opacity: 0.5; /* Opacidad baja para las laterales */
+    opacity: 0; /* Opacidad baja para las laterales */
+    visibility: hidden; /* <-- Añade esta línea por seguridad extra */
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     transition: all 0.5s ease-out; /* Transiciones suaves de escala y profundidad */
@@ -158,4 +159,31 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
 
 .carrusel-dot.active {
     background: var(--color-marca);
+}
+
+/* --- VISOR DE FOTOS (MODAL) --- */
+.modal-visor {
+    display: none;
+    position: fixed;
+    z-index: 9999; /* Para que quede por encima del menú y el carrusel */
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#fotoAmpliada {
+    max-width: 90vw; /* Nunca será más ancha que la pantalla */
+    max-height: 80vh; /* Nunca será más alta que la pantalla */
+    border-radius: 10px;
+    border: 2px solid var(--color-marca);
+    object-fit: contain; /* Para que la foto no se deforme */
+}
+
+.cerrar-visor {
+    position: absolute;
+    top: 20px; right: 30px;
+    color: white; font-size: 40px; cursor: pointer;
 }

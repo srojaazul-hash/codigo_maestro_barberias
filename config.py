@@ -11,7 +11,7 @@ CONFIGURACION = {
         "mostrar_sobre_nosotros": True, # False para un estilo más directo
         "mostrar_ubicacion": True       # Por si es barbero a domicilio
     },
-    
+
     "nombre_negocio": "Barbería Premium",
     
     # --- NUEVO BLOQUE DE ESTÉTICA ---
@@ -94,9 +94,9 @@ CONFIGURACION = {
             }
         }
     ],
+"MAPA_URL": "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d189.64377181469467!2d-3.3645095897029598!3d40.490740967552114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2ses!4v1775146748934!5m2!1ses!2ses", 
+"DIRECCION_ESCRITA": "Calle de Ejemplo 123, Código Postal, Ciudad, País",
 
-
-    "direccion": "Calle Falsa 123, Tu Ciudad",
     "sobre_nosotros": [
         "Somos expertos en barbería clásica y moderna.",
         "Calidad, estilo y un ambiente relajado para que disfrutes de tu momento."

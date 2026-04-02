@@ -80,70 +80,6 @@
         </section>
     {% endif %}
 
-    {% if config.visibilidad.mostrar_servicios %}
-    <section id="servicios">
-        <div class="card">
-            <h2>Reserva tu cita</h2>
-            
-            {% if config.activar_eleccion_barbero %}
-            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: var(--texto-secundario);">Selecciona Barbero:</label>
-            <select id="barbero">
-                {% for barbero in config.barberos %}
-                <option value="{{ barbero }}">{{ barbero }}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
-
-            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: var(--texto-secundario);">Tus servicios:</label>
-            <div id="lista-servicios">
-                {% for nombre, datos in config.servicios.items() %}
-                <label class="servicio-item">
-                    <div>
-                        <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
-                        {{ nombre }} <small style="color: #888;">({{ datos.duracion }} min)</small>
-                    </div>
-                    <strong style="color: var(--color-marca);">{{ datos.precio }} €</strong>
-                </label>
-                {% endfor %}
-            </div>
-
-            <div class="resumen-flotante" id="barra-pago" style="display: none;">
-                <div>
-                    <span id="total-precio" style="font-size: 1.4em; font-weight: 600; color: var(--color-marca);">0</span><span style="color: var(--color-marca);">€</span>
-                    <small style="opacity: 0.7; margin-left: 5px;">(<span id="total-duracion">0</span> min)</small>
-                </div>
-                <button class="btn-continuar" id="btn-ver-fechas" onclick="mostrarCalendario()" disabled>Reservar</button>
-            </div>
-
-            <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
-                <h3 style="margin-top:0; color: var(--texto-principal);">Elige fecha y hora</h3>
-                
-                <div id="calendario-cliente" style="background: #111; border: 1px solid #2a2a2a; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
-                        <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
-                        <button type="button" onclick="cambiarMesCliente(1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #888; font-size: 14px;">
-                        <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
-                    </div>
-                    <div id="dias-calendario-cliente" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
-                </div>
-                
-                <input type="hidden" id="fecha-reserva">
-                <div id="contenedor-horas" class="grid-horas"></div>
-            </div>
-
-            <div id="seccion-datos" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
-                <h3 style="margin-top:0; color: var(--texto-principal);">Tus datos</h3>
-                <input type="text" id="nombre" placeholder="Nombre completo">
-                <input type="tel" id="telefono" placeholder="Teléfono">
-                <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
-            </div>
-        </div>
-    </section>
-    {% endif %}
-
     {% if config.visibilidad.mostrar_sobre_nosotros %}
     <section id="info" style="padding-top: 0;">
         <div class="card" style="margin-bottom: 0;">
@@ -218,22 +154,129 @@
     </section>
     {% endif %}
 
-    {% if config.visibilidad.mostrar_ubicacion %}
-    <section id="ubicacion" style="padding-top: 15px;">
-        <div class="card" style="margin-bottom: 0;">
-            <h2>Ubicación y Horario</h2>
-            <p>📍 {{ config.direccion }}</p>
-            <p><strong>Horarios:</strong></p>
-            <ul style="color: var(--texto-secundario); line-height: 1.8;">
-                <li>Mañanas: {{ config.horario.apertura_manana }} - {{ config.horario.cierre_manana }}</li>
-                <li>Tardes: {{ config.horario.apertura_tarde }} - {{ config.horario.cierre_tarde }}</li>
-            </ul>
+     {% if config.visibilidad.mostrar_servicios %}
+    <section id="servicios">
+        <div class="card">
+            <h2>Reserva tu cita</h2>
+            
+            {% if config.activar_eleccion_barbero %}
+            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: var(--texto-secundario);">Selecciona Barbero:</label>
+            <select id="barbero">
+                {% for barbero in config.barberos %}
+                <option value="{{ barbero }}">{{ barbero }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+
+            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: var(--texto-secundario);">Tus servicios:</label>
+            <div id="lista-servicios">
+                {% for nombre, datos in config.servicios.items() %}
+                <label class="servicio-item">
+                    <div>
+                        <input type="checkbox" class="checkbox-servicio" value="{{ nombre }}" data-precio="{{ datos.precio }}" data-duracion="{{ datos.duracion }}">
+                        {{ nombre }} <small style="color: #888;">({{ datos.duracion }} min)</small>
+                    </div>
+                    <strong style="color: var(--color-marca);">{{ datos.precio }} €</strong>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div class="resumen-flotante" id="barra-pago" style="display: none;">
+                <div>
+                    <span id="total-precio" style="font-size: 1.4em; font-weight: 600; color: var(--color-marca);">0</span><span style="color: var(--color-marca);">€</span>
+                    <small style="opacity: 0.7; margin-left: 5px;">(<span id="total-duracion">0</span> min)</small>
+                </div>
+                <button class="btn-continuar" id="btn-ver-fechas" onclick="mostrarCalendario()" disabled>Reservar</button>
+            </div>
+
+            <div id="seccion-calendario" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
+                <h3 style="margin-top:0; color: var(--texto-principal);">Elige fecha y hora</h3>
+                
+                <div id="calendario-cliente" style="background: #111; border: 1px solid #2a2a2a; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <button type="button" onclick="cambiarMesCliente(-1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&lt;</button>
+                        <h4 id="mes-año-cliente" style="margin: 0; color: var(--color-marca); text-transform: uppercase;">Cargando...</h4>
+                        <button type="button" onclick="cambiarMesCliente(1)" style="background: #222; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor:pointer; color: var(--texto-principal);">&gt;</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; color: #888; font-size: 14px;">
+                        <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                    </div>
+                    <div id="dias-calendario-cliente" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
+                </div>
+                
+                <input type="hidden" id="fecha-reserva">
+                <div id="contenedor-horas" class="grid-horas"></div>
+            </div>
+
+            <div id="seccion-datos" style="display:none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
+                <h3 style="margin-top:0; color: var(--texto-principal);">Tus datos</h3>
+                <input type="text" id="nombre" placeholder="Nombre completo">
+                <input type="tel" id="telefono" placeholder="Teléfono">
+                <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
+            </div>
         </div>
     </section>
     {% endif %}
 
-    <footer>
-        &copy; 2026 {{ config.nombre_negocio }} - Creado por Rubén
+    {% if config.visibilidad.mostrar_ubicacion %}
+    <section id="ubicacion" style="padding: 40px 20px; text-align: center;">
+        
+        <div style="max-width: 800px; margin: 0 auto; background-color: {{ config.estetica.card_bg }}; border: 4px solid {{ config.estetica.bg_app }}; border-radius: 15px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+            
+            <h2 style="color: {{ config.estetica.color_marca }}; margin-top: 0; margin-bottom: 20px;">Dónde Estamos</h2>
+            
+            <iframe 
+                src="{{ config.MAPA_URL }}" 
+                width="100%" 
+                height="350" 
+                style="border:0; border-radius: 10px;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            
+        </div>
+    </section>
+    {% endif %}
+
+
+    <footer style="background-color: #0f0f0f; color: {{ config.estetica.texto_secundario }}; padding: 40px 20px 20px 20px; border-top: 1px solid {{ config.estetica.card_bg }}; font-family: sans-serif;">
+        
+        <div style="max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px;">
+            
+            <div style="flex: 1; min-width: 250px;">
+                <h3 style="color: {{ config.estetica.color_marca }}; margin-bottom: 15px; font-size: 1.2em;">{{ config.nombre_negocio }}</h3>
+                <p style="font-size: 0.9em; line-height: 1.5;">{{ config.sobre_nosotros[0] }}</p>
+            </div>
+
+            <div style="flex: 1; min-width: 250px;">
+                <h3 style="color: {{ config.estetica.texto_principal }}; margin-bottom: 15px; font-size: 1.1em;">Contacto</h3>
+                <p style="font-size: 0.9em; margin: 8px 0; display: flex; align-items: flex-start; gap: 8px;">
+                    <span>📍</span> 
+                    <span>{{ config.DIRECCION_ESCRITA }}</span>
+                </p>
+                <p style="font-size: 0.9em; margin: 8px 0;">
+                    <span>📞</span> {{ config.telefono_bizum }}
+                </p>
+            </div>
+
+            <div style="flex: 1; min-width: 250px;">
+                <h3 style="color: {{ config.estetica.texto_principal }}; margin-bottom: 15px; font-size: 1.1em;">Horario</h3>
+                <p style="font-size: 0.9em; margin: 8px 0;">
+                    <strong>Mañanas:</strong> {{ config.horario.apertura_manana }} - {{ config.horario.cierre_manana }}
+                </p>
+                <p style="font-size: 0.9em; margin: 8px 0;">
+                    <strong>Tardes:</strong> {{ config.horario.apertura_tarde }} - {{ config.horario.cierre_tarde }}
+                </p>
+            </div>
+            
+        </div>
+
+        <div style="max-width: 1000px; margin: 40px auto 0 auto; padding-top: 20px; border-top: 1px solid {{ config.estetica.card_bg }}; text-align: center; font-size: 0.8em; color: {{ config.estetica.texto_secundario }};">
+            <p style="margin: 5px 0;">&copy; 2026 {{ config.nombre_negocio }}. Todos los derechos reservados.</p>
+            <p style="margin: 5px 0;">Diseño y desarrollo por <strong style="color: {{ config.estetica.color_marca }};">Rubén</strong></p>
+        </div>
+        
     </footer>
 
     <script>

@@ -78,7 +78,6 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     height: 100%;
     aspect-ratio: 16/9;
     opacity: 0; /* Opacidad baja para las laterales */
-    visibility: hidden; /* <-- Añade esta línea por seguridad extra */
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     transition: all 0.5s ease-out; /* Transiciones suaves de escala y profundidad */

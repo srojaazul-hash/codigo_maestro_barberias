@@ -13,16 +13,30 @@ CONFIGURACION = {
         "logo_url": "/static/cilindro_barberia.png"
     },
 
-    # 3. BLOQUE SERVICIOS (Asegúrate de que sigue existiendo)
+    # --- CONFIGURACIÓN DE LA PORTADA (PRIMERA IMPRESIÓN) ---
+    "PORTADA": {
+        # Elige 'minimalista' (opción 2.1) o 'imagen' (opción 2.2)
+        "tipo": "minimalista", 
+        
+        # Interruptores: True para mostrar, False para ocultar
+        "mostrar_logo": True,
+        "mostrar_nombre": True,
+        
+        # Configuración para el tipo 'minimalista'
+        "color_fondo": "#121212", 
+        
+        # Configuración para el tipo 'imagen'
+        "imagen_fondo": "/static/fondo_portada.jpg" 
+    },
+    
+    # 3. BLOQUE SERVICIOS
     "servicios": {
         "Corte clásico": {"duracion": 30, "precio": 12},
         "Degradado (Fade)": {"duracion": 45, "precio": 14},
         "Arreglo de barba": {"duracion": 20, "precio": 8},
         "Cejas": {"duracion": 10, "precio": 3},
         "Masaje Facial": {"duracion": 15, "precio": 10}
-    }, # <--- MUY IMPORTANTE ESTA COMA
-    
-    # ... (mantén el resto de tus variables: servicios, barberos, horario, etc.)
+    },
     
     # Tiempo extra de limpieza/descanso tras cada servicio (en minutos)
     "tiempo_cortesia": 0, 
@@ -48,4 +62,3 @@ CONFIGURACION = {
         "Calidad, estilo y un ambiente relajado para que disfrutes de tu momento."
     ],
 }
-# Modifica solo los valores de este diccionario para cada cliente nuevo.

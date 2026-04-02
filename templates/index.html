@@ -39,6 +39,35 @@
         </div>
     </nav>
 
+    {% if config.PORTADA.tipo == 'minimalista' %}
+        <section style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: {{ config.PORTADA.color_fondo }}; padding: 20px;">
+            
+            {% if config.PORTADA.mostrar_logo %}
+                <img src="{{ config.estetica.logo_url }}" alt="Logo Barbería" style="height: 180px; max-width: 90%; object-fit: contain; margin-bottom: 20px;">
+            {% endif %}
+            
+            {% if config.PORTADA.mostrar_nombre %}
+                <h1 style="color: var(--color-marca); font-size: 2.5em; text-align: center; margin: 0;">{{ config.nombre_negocio }}</h1>
+            {% endif %}
+            
+        </section>
+
+    {% elif config.PORTADA.tipo == 'imagen' %}
+        <section style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+                        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url('{{ config.PORTADA.imagen_fondo }}'); 
+                        background-size: cover; background-position: center; padding: 20px;">
+            
+            {% if config.PORTADA.mostrar_logo %}
+                <img src="{{ config.estetica.logo_url }}" alt="Logo Barbería" style="height: 90px; max-width: 80%; object-fit: contain; margin-bottom: 15px;">
+            {% endif %}
+            
+            {% if config.PORTADA.mostrar_nombre %}
+                <h1 style="color: #ffffff; font-size: 1.8em; text-align: center; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">{{ config.nombre_negocio }}</h1>
+            {% endif %}
+            
+        </section>
+    {% endif %}
+
     <section id="servicios">
         <div class="card">
             <h2>Reserva tu cita</h2>

@@ -33,9 +33,21 @@
         </div>
         
         <div class="nav-links" id="navLinks">
+            {% if config.visibilidad.mostrar_servicios %}
             <a href="#servicios" onclick="toggleMenu()">Reserva tu cita</a>
+            {% endif %}
+            
+            {% if config.visibilidad.mostrar_sobre_nosotros %}
             <a href="#info" onclick="toggleMenu()">Sobre nosotros</a>
+            {% endif %}
+            
+            {% if config.visibilidad.mostrar_equipo %}
+            <a href="#equipo" onclick="toggleMenu()">Nuestro Equipo</a>
+            {% endif %}
+            
+            {% if config.visibilidad.mostrar_ubicacion %}
             <a href="#ubicacion" onclick="toggleMenu()">Contacto y Horario</a>
+            {% endif %}
         </div>
     </nav>
 
@@ -68,6 +80,7 @@
         </section>
     {% endif %}
 
+    {% if config.visibilidad.mostrar_servicios %}
     <section id="servicios">
         <div class="card">
             <h2>Reserva tu cita</h2>
@@ -129,7 +142,9 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
+    {% if config.visibilidad.mostrar_sobre_nosotros %}
     <section id="info" style="padding-top: 0;">
         <div class="card" style="margin-bottom: 0;">
             <h2>Sobre nosotros</h2>
@@ -139,7 +154,9 @@
             {% endfor %}
         </div>
     </section>
+    {% endif %}
 
+    {% if config.visibilidad.mostrar_galeria %}
     <section id="galeria">
         <div class="card card-dark">
             <h2>Nuestros Trabajos</h2>
@@ -164,7 +181,9 @@
         <span class="cerrar-visor">&times;</span>
         <img id="fotoAmpliada">
     </div>
+    {% endif %}
 
+    {% if config.visibilidad.mostrar_equipo %}
     <section id="equipo">
         <div class="card card-dark">
             <h2>Nuestro Equipo</h2>
@@ -197,7 +216,9 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
+    {% if config.visibilidad.mostrar_ubicacion %}
     <section id="ubicacion" style="padding-top: 15px;">
         <div class="card" style="margin-bottom: 0;">
             <h2>Ubicación y Horario</h2>
@@ -209,6 +230,7 @@
             </ul>
         </div>
     </section>
+    {% endif %}
 
     <footer>
         &copy; 2026 {{ config.nombre_negocio }} - Creado por Rubén
@@ -237,18 +259,27 @@
             totalDuracionEl.textContent = duracion;
             btnVerFechas.disabled = !seleccionado;
             
-            document.getElementById('barra-pago').style.display = seleccionado ? 'flex' : 'none';
+            const barraPago = document.getElementById('barra-pago');
+            if (barraPago) {
+                barraPago.style.display = seleccionado ? 'flex' : 'none';
+            }
         }
 
         checkboxes.forEach(box => box.addEventListener('change', actualizarCarrito));
 
         function mostrarCalendario() {
             const seccionCal = document.getElementById('seccion-calendario');
-            seccionCal.style.display = 'block';
-            document.getElementById('barra-pago').style.display = 'none'; 
+            if(seccionCal) {
+                seccionCal.style.display = 'block';
+            }
+            
+            const barraPago = document.getElementById('barra-pago');
+            if(barraPago) {
+                barraPago.style.display = 'none'; 
+            }
             
             setTimeout(() => {
-                seccionCal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if(seccionCal) seccionCal.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
             
             cargarCalendarioCliente();
@@ -264,12 +295,14 @@
             const barbero = barberoSelect ? barberoSelect.value : 'Todos';
 
             const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            document.getElementById('mes-año-cliente').innerText = `${nombresMeses[mes - 1]} ${anio}`;
+            const mesAnioElement = document.getElementById('mes-año-cliente');
+            if (mesAnioElement) mesAnioElement.innerText = `${nombresMeses[mes - 1]} ${anio}`;
 
             const response = await fetch(`/api/estado_mes?anio=${anio}&mes=${mes}&barbero=${barbero}`);
             const datosColores = await response.json();
 
             const contenedorDias = document.getElementById('dias-calendario-cliente');
+            if(!contenedorDias) return;
             contenedorDias.innerHTML = '';
 
             const primerDiaMes = new Date(anio, mes - 1, 1).getDay();
@@ -282,7 +315,8 @@
 
             const hoy = new Date();
             hoy.setHours(0,0,0,0);
-            const fechaSeleccionada = document.getElementById('fecha-reserva').value;
+            const fechaReservaEl = document.getElementById('fecha-reserva');
+            const fechaSeleccionada = fechaReservaEl ? fechaReservaEl.value : '';
 
             for (let dia = 1; dia <= diasTotalesMes; dia++) {
                 const diaStr = String(dia).padStart(2, '0');
@@ -337,20 +371,24 @@
         const barberoSelect = document.getElementById('barbero');
         if (barberoSelect) {
             barberoSelect.addEventListener('change', () => {
-                if (document.getElementById('seccion-calendario').style.display === 'block') {
+                const seccionCal = document.getElementById('seccion-calendario');
+                if (seccionCal && seccionCal.style.display === 'block') {
                     cargarCalendarioCliente();
-                    document.getElementById('contenedor-horas').innerHTML = ''; 
-                    document.getElementById('fecha-reserva').value = '';
+                    const contenedorHoras = document.getElementById('contenedor-horas');
+                    if (contenedorHoras) contenedorHoras.innerHTML = ''; 
+                    const fechaReservaEl = document.getElementById('fecha-reserva');
+                    if (fechaReservaEl) fechaReservaEl.value = '';
                 }
             });
         }
 
         async function seleccionarFechaCliente(fecha, color) {
-            document.getElementById('fecha-reserva').value = fecha;
+            const fechaReservaEl = document.getElementById('fecha-reserva');
+            if (fechaReservaEl) fechaReservaEl.value = fecha;
             cargarCalendarioCliente(); 
 
             const barbero = document.getElementById('barbero') ? document.getElementById('barbero').value : 'Todos';
-            const duracion = totalDuracionEl.textContent;
+            const duracion = totalDuracionEl ? totalDuracionEl.textContent : '0';
             
             const res = await fetch('/obtener_horas', {
                 method: 'POST',
@@ -359,6 +397,7 @@
             });
             const data = await res.json();
             const contenedor = document.getElementById('contenedor-horas');
+            if(!contenedor) return;
             contenedor.innerHTML = '';
             
             if (data.horas.length === 0) {
@@ -384,23 +423,31 @@
             elementoBoton.classList.add('seleccionado');
 
             const seccionDatos = document.getElementById('seccion-datos');
-            seccionDatos.style.display = 'block';
-            
-            setTimeout(() => {
-                seccionDatos.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
+            if (seccionDatos) {
+                seccionDatos.style.display = 'block';
+                setTimeout(() => {
+                    seccionDatos.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
         }
 
         async function confirmarReserva() {
             const serviciosSeleccionados = Array.from(checkboxes).filter(i => i.checked).map(i => i.value).join(", ");
+            const nombre = document.getElementById('nombre') ? document.getElementById('nombre').value : '';
+            const telefono = document.getElementById('telefono') ? document.getElementById('telefono').value : '';
+            const barbero = document.getElementById('barbero') ? document.getElementById('barbero').value : '';
+            const fecha = document.getElementById('fecha-reserva') ? document.getElementById('fecha-reserva').value : '';
+            const duracion = totalDuracionEl ? totalDuracionEl.textContent : '0';
+            const precio = totalPrecioEl ? totalPrecioEl.textContent : '0';
+
             const datos = {
-                nombre: document.getElementById('nombre').value,
-                telefono: document.getElementById('telefono').value,
-                barbero: document.getElementById('barbero').value,
-                fecha: document.getElementById('fecha-reserva').value,
+                nombre: nombre,
+                telefono: telefono,
+                barbero: barbero,
+                fecha: fecha,
                 hora_inicio: horaSeleccionada,
-                duracion: totalDuracionEl.textContent,
-                precio: totalPrecioEl.textContent,
+                duracion: duracion,
+                precio: precio,
                 servicios: serviciosSeleccionados
             };
             
@@ -456,12 +503,14 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
         function ampliarFoto(img) {
             const modal = document.getElementById('modalVisor');
             const foto = document.getElementById('fotoAmpliada');
-            modal.style.display = 'flex';
-            foto.src = img.src;
+            if (modal && foto) {
+                modal.style.display = 'flex';
+                foto.src = img.src;
+            }
         }
 
         let slideIndexActual = 0;
-        let slides = []; // Se llenará cuando cargue la página
+        let slides = []; 
         let contenedorPuntos;
 
         function moverSlide(direccion) {

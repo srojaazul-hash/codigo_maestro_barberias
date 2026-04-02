@@ -1,6 +1,17 @@
 # config.py
 
+
 CONFIGURACION = {
+
+
+    "visibilidad": {
+        "mostrar_servicios": True,      # Casi siempre será True
+        "mostrar_equipo": True,         # False para barberos que trabajan solos
+        "mostrar_galeria": True,        # False si aún no tienen fotos pro
+        "mostrar_sobre_nosotros": True, # False para un estilo más directo
+        "mostrar_ubicacion": True       # Por si es barbero a domicilio
+    },
+    
     "nombre_negocio": "Barbería Premium",
     
     # --- NUEVO BLOQUE DE ESTÉTICA ---

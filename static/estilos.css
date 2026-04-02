@@ -187,10 +187,10 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     color: white; font-size: 40px; cursor: pointer;
 }
 
-/* --- SECCIÓN EQUIPO / BARBEROS --- */
+/* --- SECCIÓN EQUIPO / BARBEROS (NUEVO DISEÑO PROFESIONAL) --- */
 .contenedor-equipo {
     display: grid;
-    grid-template-columns: 1fr; /* En móvil se ve 1 barbero por fila */
+    grid-template-columns: 1fr;
     gap: 30px;
     margin-top: 15px;
 }
@@ -201,56 +201,58 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     border-radius: 15px;
     padding: 25px 20px;
     text-align: center;
+    overflow: hidden;
 }
 
 .nombre-barbero {
     color: var(--color-marca);
-    font-size: 1.8em;
-    margin: 0 0 20px 0;
+    font-size: 1.6em;
+    margin: 0 0 15px 0;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .foto-barbero-container {
     position: relative;
-    width: 140px;
-    height: 140px;
-    margin: 0 auto 25px auto; /* Margen inferior extra para dejar hueco a los iconos */
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 20px auto;
+    aspect-ratio: 4 / 5;
 }
 
 .foto-barbero {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 50%; /* Foto perfectamente redonda */
-    border: 3px solid var(--color-marca);
+    border-radius: 10px;
+    border: 1px solid #333;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
 
 .redes-barbero {
     position: absolute;
-    bottom: -15px; /* Lo bajamos un poco para que pise el borde de la foto */
-    left: 50%;
-    transform: translateX(-50%);
-    background: #111;
-    padding: 6px 15px;
-    border-radius: 20px;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    padding: 5px 10px;
+    border-radius: 15px;
     border: 1px solid var(--color-marca);
     display: flex;
-    gap: 15px;
+    gap: 10px;
     align-items: center;
 }
 
 .icono-red svg {
-    width: 20px;
-    height: 20px;
-    fill: var(--color-marca); /* Se pintan automáticamente del color del config.py */
+    width: 18px;
+    height: 18px;
+    fill: var(--color-marca);
     transition: transform 0.2s, fill 0.2s;
     display: block;
 }
 
 .icono-red:hover svg {
     transform: scale(1.1);
-    fill: #fff; /* Al tocarlo se vuelve blanco */
+    fill: #fff;
 }
 
 .desc-barbero {
@@ -258,4 +260,5 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
     font-size: 0.95em;
     line-height: 1.6;
     margin-bottom: 0;
+    padding: 0 10px;
 }

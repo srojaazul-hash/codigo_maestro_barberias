@@ -93,7 +93,31 @@ def manifest():
     return jsonify({
         "name": CONFIGURACION["nombre_negocio"],
         "short_name": CONFIGURACION["nombre_negocio"],
-        "start_url": "/",
+        "start_url": "/#servicios", # Modificado para ir directo a reservas (Punto 7)
+        "display": "standalone",
+        "background_color": CONFIGURACION["estetica"]["bg_app"],
+        "theme_color": CONFIGURACION["estetica"]["bg_app"],
+        "icons": [
+            {
+                "src": CONFIGURACION["estetica"]["logo_url"],
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": CONFIGURACION["estetica"]["logo_url"],
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    })
+
+# Nueva ruta para el manifest de la app del barbero (Puntos 4 y 5)
+@app.route('/manifest_barbero.json')
+def manifest_barbero():
+    return jsonify({
+        "name": "Panel de Gestión - Barbería",
+        "short_name": "Barberos",
+        "start_url": "/admin", # Modificado para abrir el panel directamente
         "display": "standalone",
         "background_color": CONFIGURACION["estetica"]["bg_app"],
         "theme_color": CONFIGURACION["estetica"]["bg_app"],

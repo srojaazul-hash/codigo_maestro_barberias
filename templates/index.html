@@ -524,7 +524,7 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
                 `;
                 alert(ticket);
                 
-                if (Notification.permission === 'granted') {
+                if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification("¡Reserva Confirmada!", {
                         body: "Tu cita en {{ config.nombre_negocio }} ha sido registrada.",
                         icon: "{{ config.estetica.logo_url }}"
@@ -542,8 +542,10 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
             .then(() => console.log("App lista para instalar"));
         }
 
-        if (Notification.permission !== 'granted') {
-            Notification.permission === 'default' && Notification.requestPermission();
+      if ('Notification' in window && window.Notification) {
+            if (Notification.permission !== 'granted') {
+                Notification.permission === 'default' && Notification.requestPermission();
+            }
         }
 
         /* --- FUNCIONES DEL CARRUSEL Y VISOR DE FOTOS --- */

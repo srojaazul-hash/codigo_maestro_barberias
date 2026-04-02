@@ -16,17 +16,17 @@ CONFIGURACION = {
     # --- CONFIGURACIÓN DE LA PORTADA (PRIMERA IMPRESIÓN) ---
     "PORTADA": {
         # Elige 'minimalista' (opción 2.1) o 'imagen' (opción 2.2)
-        "tipo": "minimalista", 
+        "tipo": "imagen", 
         
         # Interruptores: True para mostrar, False para ocultar
-        "mostrar_logo": True,
+        "mostrar_logo": False,
         "mostrar_nombre": True,
         
         # Configuración para el tipo 'minimalista'
         "color_fondo": "#121212", 
         
         # Configuración para el tipo 'imagen'
-        "imagen_fondo": "/static/fondo_portada.jpg" 
+        "imagen_fondo": "/static/prueba_fondo.jpg" 
     },
     
     # 3. BLOQUE SERVICIOS

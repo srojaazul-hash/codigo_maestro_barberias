@@ -80,7 +80,7 @@ CONFIGURACION = {
             "foto": "/static/barbero1.jpg",
             "descripcion": "Especialista en degradados y diseño de barba. 5 años de experiencia dando el mejor servicio.",
             "redes": {
-                "instagram": "https://www.instagram.com/juangalleg0o",
+                "instagram": "https://www.instagram.com/juangalleg0o_",
                 "tiktok": "https://tiktok.com/@tu_usuario"
             }
         },

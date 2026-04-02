@@ -7,9 +7,10 @@ CONFIGURACION = {
     "visibilidad": {
         "mostrar_servicios": True,      # Casi siempre será True
         "mostrar_equipo": True,         # False para barberos que trabajan solos
-        "mostrar_galeria": True,        # False si aún no tienen fotos pro
+        "mostrar_galeria_pelo": True,        # False si aún no tienen fotos pro
         "mostrar_sobre_nosotros": True, # False para un estilo más directo
-        "mostrar_ubicacion": True       # Por si es barbero a domicilio
+        "mostrar_ubicacion": True,       # Por si es barbero a domicilio
+        "mostrar_galeria_local": True     
     },
 
     "nombre_negocio": "Barbería Premium",
@@ -40,13 +41,18 @@ CONFIGURACION = {
         "imagen_fondo": "/static/prueba_fondo.jpg" 
     },
 
-    "galeria": [
+    "galeria_pelo": [
         {"url": "/static/corte1.jpg", "titulo": "Degradado Clásico"},
         {"url": "/static/corte2.jpg", "titulo": "Arreglo de Barba Premium"},
         {"url": "/static/corte3.jpg", "titulo": "Corte Moderno"},
         {"url": "/static/corte4.jpg", "titulo": "Estilo Vikingo"}
     ],
     
+"galeria_local": [
+        {"url": "/static/salon.jpg", "titulo": "Degradado Clásico"},
+        {"url": "/static/maquinilla.jpg", "titulo": "Arreglo de Barba Premium"}
+    ],
+
     # 3. BLOQUE SERVICIOS
     "servicios": {
         "Corte clásico": {"duracion": 30, "precio": 12},

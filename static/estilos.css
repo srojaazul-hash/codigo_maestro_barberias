@@ -46,7 +46,7 @@ h2 { color: var(--color-marca); text-align: center; margin-bottom: 25px; margin-
 .form-group label { margin-bottom: 5px; color: #aaa; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
 
 /* --- ESTILOS GALERÍA: CARRUSEL 3D (NUEVO) --- */
-#galeria .card {
+#galeria_pelo .card {
     padding: 20px 0;
 }
 

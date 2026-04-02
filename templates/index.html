@@ -37,10 +37,14 @@
             <a href="#info" onclick="toggleMenu()">Sobre nosotros</a>
             {% endif %}
             
-            {% if config.visibilidad.mostrar_galeria %}
-            <a href="#galeria" onclick="toggleMenu()">Nuestros Trabajos</a>
+            {% if config.visibilidad.mostrar_galeria_pelo %}
+            <a href="#galeria_pelo" onclick="toggleMenu()">Nuestros Trabajos</a>
             {% endif %}
             
+            {% if config.visibilidad.mostrar_galeria_local %}
+            <a href="#galeria_local" onclick="toggleMenu()">Nuestro Local</a>
+            {% endif %}
+
             {% if config.visibilidad.mostrar_equipo %}
             <a href="#equipo" onclick="toggleMenu()">Nuestro Equipo</a>
             {% endif %}
@@ -96,32 +100,52 @@
     </section>
     {% endif %}
 
-    {% if config.visibilidad.mostrar_galeria %}
-    <section id="galeria">
+   {% if config.visibilidad.mostrar_galeria_pelo %}
+    <section id="galeria_pelo">
         <div class="card card-dark">
             <h2>Nuestros Trabajos</h2>
             <div class="contenedor-carrusel">
-                <button class="carrusel-control prev" onclick="moverSlide(-1)">&#10094;</button>
-                <div class="carrusel-track" id="carruselTrack">
-                    {% for foto in config.galeria %}
+                <button class="carrusel-control prev" onclick="moverSlide('pelo', -1)">&#10094;</button>
+                <div class="carrusel-track" id="track-pelo">
+                    {% for foto in config.galeria_pelo %}
                     <div class="carrusel-slide">
                         <img src="{{ foto.url }}" alt="{{ foto.titulo }}" onclick="ampliarFoto(this)">
                         <div class="foto-info">{{ foto.titulo }}</div>
                     </div>
                     {% endfor %}
                 </div>
-                <button class="carrusel-control next" onclick="moverSlide(1)">&#10095;</button>
+                <button class="carrusel-control next" onclick="moverSlide('pelo', 1)">&#10095;</button>
             </div>
-            <div class="carrusel-dots" id="carruselDots">
-                </div>
+            <div class="carrusel-dots" id="dots-pelo"></div>
         </div>
     </section>
+    {% endif %}
+
+    {% if config.visibilidad.mostrar_galeria_local %}
+    <section id="galeria_local">
+        <div class="card card-dark">
+            <h2>Nuestro Local</h2>
+            <div class="contenedor-carrusel">
+                <button class="carrusel-control prev" onclick="moverSlide('local', -1)">&#10094;</button>
+                <div class="carrusel-track" id="track-local">
+                    {% for foto in config.galeria_local %}
+                    <div class="carrusel-slide">
+                        <img src="{{ foto.url }}" alt="{{ foto.titulo }}" onclick="ampliarFoto(this)">
+                        <div class="foto-info">{{ foto.titulo }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carrusel-control next" onclick="moverSlide('local', 1)">&#10095;</button>
+            </div>
+            <div class="carrusel-dots" id="dots-local"></div>
+        </div>
+    </section>
+    {% endif %}
 
     <div id="modalVisor" class="modal-visor" onclick="this.style.display='none'">
         <span class="cerrar-visor">&times;</span>
         <img id="fotoAmpliada">
     </div>
-    {% endif %}
 
     {% if config.visibilidad.mostrar_equipo %}
     <section id="equipo">
@@ -568,6 +592,7 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
         }
 
         /* --- FUNCIONES DEL CARRUSEL Y VISOR DE FOTOS --- */
+        /* --- FUNCIONES DEL CARRUSEL Y VISOR DE FOTOS --- */
         function ampliarFoto(img) {
             const modal = document.getElementById('modalVisor');
             const foto = document.getElementById('fotoAmpliada');
@@ -577,71 +602,77 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
             }
         }
 
-        let slideIndexActual = 0;
-        let slides = []; 
-        let contenedorPuntos;
+        // DICCIONARIO PARA CONTROLAR MÚLTIPLES CARRUSELES DE FORMA INDEPENDIENTE
+        const estadosCarrusel = {
+            'pelo': { index: 0, slides: [], dotsId: 'dots-pelo', trackId: 'track-pelo' },
+            'local': { index: 0, slides: [], dotsId: 'dots-local', trackId: 'track-local' }
+        };
 
-        function moverSlide(direccion) {
-            if (slides.length === 0) return;
-            slideIndexActual = (slideIndexActual + direccion + slides.length) % slides.length;
-            updateCarrusel();
-        }
+        function initCarruseles() {
+            for (let id in estadosCarrusel) {
+                const track = document.getElementById(estadosCarrusel[id].trackId);
+                const contenedorPuntos = document.getElementById(estadosCarrusel[id].dotsId);
 
-        function irASlide(index) {
-            slideIndexActual = index;
-            updateCarrusel();
-        }
+                // Si este carrusel no está activado en config.py, lo saltamos
+                if (!track || !contenedorPuntos) continue;
 
-        function initPuntosCarrusel() {
-            slides = document.querySelectorAll('.carrusel-slide');
-            contenedorPuntos = document.getElementById('carruselDots');
-            
-            if (!contenedorPuntos || slides.length === 0) return;
-            
-            for (let i = 0; i < slides.length; i++) {
-                const punto = document.createElement('div');
-                punto.classList.add('carrusel-dot');
-                punto.onclick = () => irASlide(i);
-                contenedorPuntos.appendChild(punto);
+                estadosCarrusel[id].slides = track.querySelectorAll('.carrusel-slide');
+                if (estadosCarrusel[id].slides.length === 0) continue;
+
+                // Creamos los puntitos para este carrusel
+                for (let i = 0; i < estadosCarrusel[id].slides.length; i++) {
+                    const punto = document.createElement('div');
+                    punto.classList.add('carrusel-dot');
+                    punto.onclick = () => irASlide(id, i);
+                    contenedorPuntos.appendChild(punto);
+                }
+
+                updateCarrusel(id);
             }
         }
 
-        function updateCarrusel() {
-            if (slides.length === 0) return;
+        function moverSlide(id, direccion) {
+            const estado = estadosCarrusel[id];
+            if (estado.slides.length === 0) return;
+            estado.index = (estado.index + direccion + estado.slides.length) % estado.slides.length;
+            updateCarrusel(id);
+        }
+
+        function irASlide(id, nuevoIndex) {
+            estadosCarrusel[id].index = nuevoIndex;
+            updateCarrusel(id);
+        }
+
+        function updateCarrusel(id) {
+            const estado = estadosCarrusel[id];
+            if (estado.slides.length === 0) return;
             
-            slides.forEach((slide, index) => {
+            estado.slides.forEach((slide, idx) => {
                 slide.classList.remove('active', 'prev', 'next');
 
-                if (index === slideIndexActual) {
+                if (idx === estado.index) {
                     slide.classList.add('active');
-                } else if (index === (slideIndexActual - 1 + slides.length) % slides.length) {
+                } else if (idx === (estado.index - 1 + estado.slides.length) % estado.slides.length) {
                     slide.classList.add('prev');
-                } else if (index === (slideIndexActual + 1) % slides.length) {
+                } else if (idx === (estado.index + 1) % estado.slides.length) {
                     slide.classList.add('next');
                 }
             });
 
-            const puntos = document.querySelectorAll('.carrusel-dot');
-            puntos.forEach((punto, index) => {
+            const puntos = document.getElementById(estado.dotsId).querySelectorAll('.carrusel-dot');
+            puntos.forEach((punto, idx) => {
                 punto.classList.remove('active');
-                if (index === slideIndexActual) {
+                if (idx === estado.index) {
                     punto.classList.add('active');
                 }
             });
         }
 
-        // INIT: ARRANQUE SEGURO DEL CARRUSEL
-        function iniciarCarrusel() {
-            initPuntosCarrusel();
-            updateCarrusel();
-        }
-
-        // Comprobamos el estado del documento. Si ya cargó, lo lanzamos directo. 
-        // Si sigue cargando, esperamos al evento.
+        // INIT: ARRANQUE SEGURO DE TODOS LOS CARRUSELES
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', iniciarCarrusel);
+            document.addEventListener('DOMContentLoaded', initCarruseles);
         } else {
-            iniciarCarrusel();
+            initCarruseles();
         }
 
     </script>

@@ -24,12 +24,14 @@
 </head>
 <body>
 
-    <nav>
+    <nav style="justify-content: flex-start; gap: 20px;">
+        <div class="menu-hamburguesa" onclick="toggleMenu()">☰</div>
+        
         <div style="display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.2em; color: var(--color-marca);">
             <img src="{{ config.estetica.logo_url }}" alt="Logo" style="height: 35px; width: auto;">
             {{ config.nombre_negocio }}
         </div>
-        <div class="menu-hamburguesa" onclick="toggleMenu()">☰</div>
+        
         <div class="nav-links" id="navLinks">
             <a href="#servicios" onclick="toggleMenu()">Reserva tu cita</a>
             <a href="#info" onclick="toggleMenu()">Sobre nosotros</a>

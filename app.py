@@ -5,10 +5,9 @@ from config import CONFIGURACION
 import os
 from dotenv import load_dotenv
 from functools import wraps
-import urllib.request
-import urllib.parse
-from flask import jsonify # Asegúrate de que jsonify esté importado arriba
 import time
+import requests
+
 
 load_dotenv() # Carga las variables del archivo .env
 app = Flask(__name__)
@@ -16,27 +15,38 @@ app = Flask(__name__)
 # Obligatorio para usar sesiones en Flask. Cambia esto por una cadena aleatoria en producción.
 app.secret_key = 'super_clave_secreta_barberia_2026'
 
-import time # Añade esto arriba del todo de tu app.py si no lo tienes
-
 def enviar_telegram_barbero(nombre, fecha, hora, servicios):
     bot_token = os.getenv("TELEGRAM_TOKEN") 
     chat_id = os.getenv("TELEGRAM_ID")
     
     mensaje = f"💈 ¡NUEVA RESERVA!\n\n👤 Cliente: {nombre}\n📅 Fecha: {fecha}\n⏰ Hora: {hora}\n✂️ Servicios: {servicios}"
-    
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    data = urllib.parse.urlencode({'chat_id': chat_id, 'text': mensaje}).encode('utf-8')
+    payload = {'chat_id': chat_id, 'text': mensaje}
     
-    # Sistema de reintentos: Lo intentará 3 veces si hay fallos de red
+    # Sistema de reintentos
     for intento in range(3):
         try:
-            # Añadimos un timeout de 5 segundos para que no se quede colgado
-            urllib.request.urlopen(url, data=data, timeout=5)
+            # Usamos 'requests', mucho más robusto para PythonAnywhere
+            respuesta = requests.post(url, json=payload, timeout=5)
+            
+            # Forzamos que salte al 'except' si Telegram nos devuelve un error (ej. Token inválido)
+            respuesta.raise_for_status() 
+            
             print("Aviso enviado por Telegram al barbero.")
-            break # Si se envía con éxito, salimos del bucle
+            break # Si hay éxito, salimos del bucle
+            
         except Exception as e:
-            print(f"Error enviando Telegram (Intento {intento + 1}/3): {e}")
-            time.sleep(2) # Espera 2 segundos antes de volver a intentarlo
+            error_msg = f"[{datetime.now()}] Error Telegram (Intento {intento + 1}/3): {e}\n"
+            print(error_msg)
+            
+            # Guardamos el error en un archivo oculto para poder leerlo si falla
+            try:
+                with open("errores_telegram.log", "a") as log_file:
+                    log_file.write(error_msg)
+            except:
+                pass
+                
+            time.sleep(2)
 
 # --- FUNCIONES DE APOYO ---
 def obtener_conexion():

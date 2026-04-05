@@ -23,30 +23,22 @@ def enviar_telegram_barbero(nombre, fecha, hora, servicios):
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload = {'chat_id': chat_id, 'text': mensaje}
     
-    # Sistema de reintentos
-    for intento in range(3):
+    try:
+        # Un único intento, con un límite de 3 segundos máximo
+        respuesta = requests.post(url, json=payload, timeout=3)
+        respuesta.raise_for_status() 
+        print("Aviso enviado por Telegram al barbero.")
+        
+    except Exception as e:
+        error_msg = f"[{datetime.now()}] Error Telegram: {e}\n"
+        print(error_msg)
+        
+        # Guardamos el error de forma silenciosa y dejamos que el cliente termine su reserva
         try:
-            # Usamos 'requests', mucho más robusto para PythonAnywhere
-            respuesta = requests.post(url, json=payload, timeout=5)
-            
-            # Forzamos que salte al 'except' si Telegram nos devuelve un error (ej. Token inválido)
-            respuesta.raise_for_status() 
-            
-            print("Aviso enviado por Telegram al barbero.")
-            break # Si hay éxito, salimos del bucle
-            
-        except Exception as e:
-            error_msg = f"[{datetime.now()}] Error Telegram (Intento {intento + 1}/3): {e}\n"
-            print(error_msg)
-            
-            # Guardamos el error en un archivo oculto para poder leerlo si falla
-            try:
-                with open("errores_telegram.log", "a") as log_file:
-                    log_file.write(error_msg)
-            except:
-                pass
-                
-            time.sleep(2)
+            with open("errores_telegram.log", "a") as log_file:
+                log_file.write(error_msg)
+        except:
+            pass
 
 # --- FUNCIONES DE APOYO ---
 def obtener_conexion():

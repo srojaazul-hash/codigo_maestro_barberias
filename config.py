@@ -42,15 +42,17 @@ CONFIGURACION = {
     },
 
     "galeria_pelo": [
-        {"url": "/static/corte1.jpg", "titulo": "Degradado Clásico"},
-        {"url": "/static/corte2.jpg", "titulo": "Arreglo de Barba Premium"},
+        {"url": "/static/corte1.jpg", "titulo": "Buzz Cutt"},
+        {"url": "/static/corte2.jpg", "titulo": "Moicano"},
         {"url": "/static/corte3.jpg", "titulo": "Corte Moderno"},
-        {"url": "/static/corte4.jpg", "titulo": "Estilo Vikingo"}
     ],
     
 "galeria_local": [
-        {"url": "/static/salon.jpg", "titulo": "Degradado Clásico"},
-        {"url": "/static/maquinilla.jpg", "titulo": "Arreglo de Barba Premium"}
+        {"url": "/static/salon.jpg", "titulo": "Nuestro Local"},
+        {"url": "/static/local_1.jpg", "titulo": "Nuestro Local"},
+        {"url": "/static/local_2.jpg", "titulo": "Nuestro Local"},
+        {"url": "/static/local_3.jpg", "titulo": "Nuestro Local"},
+        {"url": "/static/maquinillas_pelo.png", "titulo": "Nuestras Herramientas"},
     ],
 
     # 3. BLOQUE SERVICIOS
@@ -83,16 +85,16 @@ CONFIGURACION = {
 "equipo": [
         {
             "nombre": "RUBÉN",
-            "foto": "/static/barbero1.jpg",
+            "foto": "/static/barbero_1.jpg",
             "descripcion": "Especialista en degradados y diseño de barba. 5 años de experiencia dando el mejor servicio.",
             "redes": {
-                "instagram": "https://www.instagram.com/juangalleg0o_",
+                "instagram": "https://www.instagram.com/ruben__ds",
                 "tiktok": "https://tiktok.com/@tu_usuario"
             }
         },
         {
             "nombre": "CARLOS",
-            "foto": "/static/barbero2.jpg",
+            "foto": "/static/barbero_2.jpg",
             "descripcion": "Maestro en cortes clásicos a tijera. La vieja escuela llevada al siguiente nivel.",
             "redes": {
                 "instagram": "https://instagram.com/usuario_carlos"

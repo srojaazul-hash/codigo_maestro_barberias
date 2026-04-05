@@ -367,6 +367,54 @@ def estado_mes():
 
     return jsonify(resultado)
 
+@app.route('/api/mis_citas', methods=['POST'])
+def mis_citas():
+    data = request.json
+    telefono = data.get('telefono')
+    
+    # Obtenemos la fecha de hoy para no mostrar citas pasadas
+    hoy_str = datetime.now().strftime('%Y-%m-%d')
+    
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    # Buscamos citas de ese teléfono de hoy en adelante
+    cursor.execute("SELECT id, fecha, hora_inicio, servicios_json, barbero FROM citas WHERE cliente_telefono = ? AND fecha >= ? ORDER BY fecha, hora_inicio", (telefono, hoy_str))
+    citas = cursor.fetchall()
+    conn.close()
+    
+    citas_lista = []
+    for c in citas:
+        citas_lista.append({
+            "id": c["id"],
+            "fecha": c["fecha"],
+            "hora_inicio": c["hora_inicio"],
+            "servicios": c["servicios_json"],
+            "barbero": c["barbero"]
+        })
+    return jsonify({"status": "ok", "citas": citas_lista})
+
+@app.route('/api/cancelar_cita_cliente', methods=['POST'])
+def cancelar_cita_cliente():
+    data = request.json
+    id_cita = data.get('id')
+    telefono = data.get('telefono')
+    
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    # Verificamos que el ID de la cita realmente pertenece a ese teléfono por seguridad
+    cursor.execute("SELECT id FROM citas WHERE id = ? AND cliente_telefono = ?", (id_cita, telefono))
+    cita_valida = cursor.fetchone()
+    
+    if cita_valida:
+        cursor.execute("DELETE FROM citas WHERE id = ?", (id_cita,))
+        conn.commit()
+        respuesta = {"status": "ok"}
+    else:
+        respuesta = {"status": "error", "mensaje": "Cita no encontrada o número incorrecto."}
+        
+    conn.close()
+    return jsonify(respuesta)
+
 @app.route('/admin_bloquear', methods=['POST'])
 @login_required
 def admin_bloquear():

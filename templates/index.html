@@ -255,6 +255,10 @@
                 <button class="btn-principal" onclick="confirmarReserva()">Confirmar Reserva</button>
             </div>
         </div>
+
+        <div style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">
+                <button onclick="abrirModalCancelar()" style="background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">Gestionar / Cancelar mi cita</button>
+            </div>
     </section>
     {% endif %}
 
@@ -278,6 +282,19 @@
         </div>
     </section>
     {% endif %}
+
+    <div id="modalCancelarCliente" style="display:none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: var(--card-bg); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; position: relative; border: 1px solid #333;">
+            <span onclick="document.getElementById('modalCancelarCliente').style.display='none'" style="position: absolute; right: 15px; top: 10px; font-size: 28px; cursor: pointer; color: var(--texto-secundario);">&times;</span>
+            <h3 style="color: var(--color-marca); margin-top: 0;">Mis Citas</h3>
+            <p style="color: var(--texto-secundario); font-size: 14px; margin-bottom: 20px;">Introduce el teléfono con el que hiciste la reserva.</p>
+            
+            <input type="tel" id="tel-cancelar" placeholder="Ej: 600123456" style="width: 100%; padding: 12px; margin-bottom: 15px; background: #111; color: white; border: 1px solid #444; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+            <button onclick="buscarMisCitas()" style="width: 100%; padding: 12px; background: var(--color-marca); color: #000; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">Buscar mis citas</button>
+            
+            <div id="lista-mis-citas" style="margin-top: 20px; max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+    </div>
 
 
     <footer style="background-color: #0f0f0f; color: {{ config.estetica.texto_secundario }}; padding: 40px 20px 20px 20px; border-top: 1px solid {{ config.estetica.card_bg }}; font-family: sans-serif;">
@@ -673,6 +690,60 @@ Por favor, haz una CAPTURA DE PANTALLA de este ticket.
             document.addEventListener('DOMContentLoaded', initCarruseles);
         } else {
             initCarruseles();
+        }
+
+        /* --- FUNCIONES DE CANCELACIÓN CLIENTE --- */
+        function abrirModalCancelar() {
+            document.getElementById('modalCancelarCliente').style.display = 'flex';
+            document.getElementById('lista-mis-citas').innerHTML = '';
+            document.getElementById('tel-cancelar').value = '';
+        }
+
+        async function buscarMisCitas() {
+            const telefono = document.getElementById('tel-cancelar').value.trim();
+            if(!telefono) { alert("Por favor, introduce un teléfono válido."); return; }
+            
+            const res = await fetch('/api/mis_citas', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({telefono})
+            });
+            const data = await res.json();
+            const contenedor = document.getElementById('lista-mis-citas');
+            contenedor.innerHTML = '';
+            
+            if(data.citas && data.citas.length > 0) {
+                data.citas.forEach(cita => {
+                    contenedor.innerHTML += `
+                        <div style="background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px;">
+                            <div style="color: var(--texto-principal); font-weight: bold; font-size: 16px;">📅 ${cita.fecha} a las ⏰ ${cita.hora_inicio}</div>
+                            <div style="color: var(--texto-secundario); font-size: 14px; margin-top: 5px;">✂️ ${cita.servicios}</div>
+                            <div style="color: var(--texto-secundario); font-size: 14px;">💈 Barbero: ${cita.barbero}</div>
+                            <button onclick="cancelarMiCita(${cita.id}, '${telefono}')" style="margin-top: 15px; width: 100%; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cancelar Cita</button>
+                        </div>
+                    `;
+                });
+            } else {
+                contenedor.innerHTML = '<p style="color: var(--texto-secundario); text-align: center; margin: 0;">No se han encontrado citas próximas para este número.</p>';
+            }
+        }
+
+        async function cancelarMiCita(id, telefono) {
+            if(!confirm("¿Estás totalmente seguro de que quieres cancelar esta cita? Esta acción no se puede deshacer.")) return;
+            
+            const res = await fetch('/api/cancelar_cita_cliente', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id, telefono})
+            });
+            const data = await res.json();
+            
+            if(data.status === 'ok') {
+                alert("Tu cita ha sido cancelada correctamente.");
+                buscarMisCitas(); // Recarga la lista para que desaparezca la cita borrada
+            } else {
+                alert("Error al cancelar: " + data.mensaje);
+            }
         }
 
     </script>
